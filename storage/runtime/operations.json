@@ -1,0 +1,43 @@
+{
+  "business_root": "",
+  "connection_check": {},
+  "history": [
+    {
+      "changed_at": "2026-09-17T11:27:07.774798+08:00",
+      "changed_by": "release-candidate",
+      "fields": [
+        "upload_limits",
+        "model_profile",
+        "business_root"
+      ],
+      "revision": 1
+    }
+  ],
+  "model_profile": {
+    "api_key_dpapi_b64": "",
+    "enabled": false,
+    "endpoint": "",
+    "model": "",
+    "timeout_seconds": 60
+  },
+  "revision": 1,
+  "schema_version": 2,
+  "updated_at": "2026-09-17T11:27:07.774798+08:00",
+  "updated_by": "release-candidate",
+  "upload_limits": {
+    "allowed_extensions": [
+      ".pptx",
+      ".docx",
+      ".pdf",
+      ".md",
+      ".markdown",
+      ".ppt",
+      ".doc",
+      ".zip",
+      ".7z",
+      ".rar"
+    ],
+    "max_attachments_per_card": 20,
+    "max_file_bytes": 104857600
+  }
+}

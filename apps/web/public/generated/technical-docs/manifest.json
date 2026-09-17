@@ -1,0 +1,39 @@
+{
+  "version": "20260917.v1",
+  "generated_at": "20260917",
+  "manuals": [
+    {
+      "id": "ai4science",
+      "title": "AI4SCIENCE 教学手册",
+      "description": "解释三阶段、12 个工作流、68 个工作包、成果卡、交接书和证据门。",
+      "source": "docs/education/20260915-AI4SCIENCE教学手册-教学手册.html",
+      "version": "20260915",
+      "url": "/generated/technical-docs/ai4science-teaching-manual.html",
+      "size_bytes": 73430,
+      "sha256": "DA36FEB9AAA60FD115AB9E9D7E80041B1511BE12E79F3480B54EF530ACA640D1",
+      "output_path": "ai4science-teaching-manual.html"
+    },
+    {
+      "id": "tech-stack",
+      "title": "ScienceResearch 技术栈教学手册",
+      "description": "用通俗路径解释目标技术栈、请求旅程、迁移兼容栈和质量工具。",
+      "source": "docs/architecture/20260915-项目技术栈通俗教学手册-技术说明.html",
+      "version": "20260915",
+      "url": "/generated/technical-docs/scienceresearch-tech-stack-manual.html",
+      "size_bytes": 58907,
+      "sha256": "A0B4901A45A046CEABE90EAF6719185B6424DFC66AC9766DC894D8B6F9233151",
+      "output_path": "scienceresearch-tech-stack-manual.html"
+    },
+    {
+      "id": "user-manual",
+      "title": "科研工作台用户手册",
+      "description": "面向用户说明安装启动、首页导航、工作包、课题流程和成效卡路径。",
+      "source": "docs/manuals/20260917-科研工作台用户手册-教学手册.html",
+      "version": "20260917",
+      "url": "/generated/technical-docs/scienceresearch-user-manual.html",
+      "size_bytes": 73536,
+      "sha256": "B9B94D4CCDB0932CAB2A027717DF28D083764C5B8049F8E60DA626B25E22683B",
+      "output_path": "scienceresearch-user-manual.html"
+    }
+  ]
+}

@@ -1,0 +1,3647 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ScienceResearch API",
+    "version": "0.2.0"
+  },
+  "paths": {
+    "/healthz": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Health",
+        "description": "Return liveness without opening a database connection.",
+        "operationId": "health_healthz_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Health Healthz Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/readyz": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Readiness",
+        "operationId": "readiness_readyz_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadinessDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "PostgreSQL or schema is not ready"
+          }
+        }
+      }
+    },
+    "/api/v1/catalog": {
+      "get": {
+        "tags": [
+          "catalog"
+        ],
+        "summary": "Catalog",
+        "operationId": "catalog_api_v1_catalog_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/research-workflow-map": {
+      "get": {
+        "tags": [
+          "catalog"
+        ],
+        "summary": "Research Workflow Map",
+        "operationId": "research_workflow_map_api_v1_research_workflow_map_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResearchWorkflowMapDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Workflow map configuration is unavailable or invalid"
+          }
+        }
+      }
+    },
+    "/api/v1/achievement-cards/{card_id}/attachments": {
+      "post": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "Upload Achievement Attachment",
+        "operationId": "upload_achievement_attachment_api_v1_achievement_cards__card_id__attachments_post",
+        "parameters": [
+          {
+            "name": "card_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Card Id"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AchievementAttachmentDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Achievement card does not exist",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Attachment filename or deleted-card state conflicts",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Attachment file exceeds limits or fails validation",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Attachment database dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/achievement-attachments/{attachment_id}": {
+      "get": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "Achievement Attachment Detail",
+        "operationId": "achievement_attachment_detail_api_v1_achievement_attachments__attachment_id__get",
+        "parameters": [
+          {
+            "name": "attachment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Attachment Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AchievementAttachmentDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Attachment or artifact file does not exist",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Attachment integrity verification failed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Attachment database dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/achievement-attachments/{attachment_id}/download": {
+      "get": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "Download Achievement Attachment",
+        "operationId": "download_achievement_attachment_api_v1_achievement_attachments__attachment_id__download_get",
+        "parameters": [
+          {
+            "name": "attachment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Attachment Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Attachment or artifact file does not exist",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Attachment integrity verification failed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Attachment database dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/achievement-attachments/{attachment_id}/preview": {
+      "get": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "Preview Achievement Attachment",
+        "operationId": "preview_achievement_attachment_api_v1_achievement_attachments__attachment_id__preview_get",
+        "parameters": [
+          {
+            "name": "attachment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Attachment Id"
+            }
+          },
+          {
+            "name": "representation",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "document",
+              "title": "Representation"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Attachment or preview artifact does not exist",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Attachment integrity verification failed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Attachment preview is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Attachment database dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/achievement-attachments/{attachment_id}/images/{index}": {
+      "get": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "Achievement Attachment Image",
+        "operationId": "achievement_attachment_image_api_v1_achievement_attachments__attachment_id__images__index__get",
+        "parameters": [
+          {
+            "name": "attachment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Attachment Id"
+            }
+          },
+          {
+            "name": "index",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Index"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "Attachment or preview artifact does not exist",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Attachment integrity verification failed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Attachment preview is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Attachment database dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/contexts/{context_id}/deletion/prepare": {
+      "post": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "Prepare Context Deletion",
+        "operationId": "prepare_context_deletion_api_v1_contexts__context_id__deletion_prepare_post",
+        "parameters": [
+          {
+            "name": "context_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Context Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContextDeletionPrepareDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextDeletionPrepareResultDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request body is not a JSON object",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Context does not exist",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Context version changed or a deletion is already active",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Deletion preparation input is invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Deletion database dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/contexts/{context_id}/deletion/commit": {
+      "post": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "Commit Context Deletion",
+        "operationId": "commit_context_deletion_api_v1_contexts__context_id__deletion_commit_post",
+        "parameters": [
+          {
+            "name": "context_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Context Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContextDeletionCommitDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextDeletionCommitResultDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request body is not a JSON object",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Deletion ticket is invalid or bound to another session",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Context or deletion operation does not exist",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Deletion ticket expired, was replayed, or conflict requires preparation again",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Deletion database or artifact dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/contexts": {
+      "get": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "List Contexts",
+        "operationId": "list_contexts_api_v1_contexts_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextListDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Context database dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "Create Context",
+        "operationId": "create_context_api_v1_contexts_post",
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedContextDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request body is not a JSON object",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Context input is invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Context database dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/contexts/{context_id}": {
+      "get": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "Context Detail",
+        "operationId": "context_detail_api_v1_contexts__context_id__get",
+        "parameters": [
+          {
+            "name": "context_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Context Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Context does not exist",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Context database dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/contexts/{context_id}/disclosure-preferences": {
+      "get": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "Get Disclosure Preferences",
+        "operationId": "get_disclosure_preferences_api_v1_contexts__context_id__disclosure_preferences_get",
+        "parameters": [
+          {
+            "name": "context_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Context Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisclosurePreferenceListDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request body is not a JSON object",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Context or disclosure subject does not exist",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Disclosure preference version changed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Disclosure input is invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Disclosure database dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "Upsert Disclosure Preference",
+        "operationId": "upsert_disclosure_preference_api_v1_contexts__context_id__disclosure_preferences_post",
+        "parameters": [
+          {
+            "name": "context_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Context Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisclosurePreferenceDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request body is not a JSON object",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Context or disclosure subject does not exist",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Disclosure preference version changed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Disclosure input is invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Disclosure database dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ui/session": {
+      "post": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "Create Ui Session",
+        "operationId": "create_ui_session_api_v1_ui_session_post",
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiSessionIssueResultDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request body is not a JSON object",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "UI session input is invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "UI session database dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workflows/{workflow_id}/completion-authorization": {
+      "post": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "Create Completion Authorization",
+        "operationId": "create_completion_authorization_api_v1_workflows__workflow_id__completion_authorization_post",
+        "parameters": [
+          {
+            "name": "workflow_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Workflow Id"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompletionAuthorizationResultDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request body is not a JSON object",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UI session is invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workflow does not exist",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Workflow version changed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Completion authorization input is invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Workflow authorization database dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/contexts/{context_id}/workflows": {
+      "get": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "Context Workflows",
+        "operationId": "context_workflows_api_v1_contexts__context_id__workflows_get",
+        "parameters": [
+          {
+            "name": "context_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Context Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowListDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Context does not exist",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Workflow database dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/achievement-cards": {
+      "post": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "Create Achievement Card",
+        "operationId": "create_achievement_card_api_v1_achievement_cards_post",
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AchievementCardDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request body is not a JSON object",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workflow does not exist",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Workflow ownership or week item binding conflicts",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Achievement card input is invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Achievement card database dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/achievement-cards": {
+      "post": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "Create Achievement Card Compat",
+        "operationId": "create_achievement_card_compat_api_achievement_cards_post",
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AchievementCardDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request body is not a JSON object",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workflow does not exist",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Workflow ownership or week item binding conflicts",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Achievement card input is invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Achievement card database dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/achievement-cards/{card_id}": {
+      "put": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "Update Achievement Card",
+        "operationId": "update_achievement_card_api_v1_achievement_cards__card_id__put",
+        "parameters": [
+          {
+            "name": "card_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Card Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AchievementCardUpdateDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AchievementCardDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request body is not a JSON object",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Achievement card does not exist",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Achievement card version changed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Achievement card input is invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Achievement card database dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "Delete Achievement Card",
+        "operationId": "delete_achievement_card_api_v1_achievement_cards__card_id__delete",
+        "parameters": [
+          {
+            "name": "card_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Card Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AchievementCardDeleteDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardDeleteResultDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request body is not a JSON object",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Achievement card does not exist",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Delete confirmation or card version conflicts",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Delete input is invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Achievement card database dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/contexts/{context_id}/workflows/{workflow_id}/achievement-cards/{card_id}/importance": {
+      "patch": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "Set Achievement Card Importance",
+        "operationId": "set_achievement_card_importance_api_v1_contexts__context_id__workflows__workflow_id__achievement_cards__card_id__importance_patch",
+        "parameters": [
+          {
+            "name": "context_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Context Id"
+            }
+          },
+          {
+            "name": "workflow_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Workflow Id"
+            }
+          },
+          {
+            "name": "card_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Card Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AchievementCardImportanceDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardImportanceResultDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Card or owning context and workflow does not exist",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Achievement card version changed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Importance input is invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Achievement card database dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/contexts/{context_id}/workflow-selection": {
+      "post": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "Set Workflow Selection",
+        "operationId": "set_workflow_selection_api_v1_contexts__context_id__workflow_selection_post",
+        "parameters": [
+          {
+            "name": "context_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Context Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowSelectionDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowRecordDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request body is not a JSON object",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Work package or workflow does not exist",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Workflow version changed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Selection status or author confirmation is invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Workflow database dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workflows/{workflow_id}/completion": {
+      "post": {
+        "tags": [
+          "contexts",
+          "workflows",
+          "achievement cards"
+        ],
+        "summary": "Set Workflow Completion",
+        "operationId": "set_workflow_completion_api_v1_workflows__workflow_id__completion_post",
+        "parameters": [
+          {
+            "name": "workflow_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Workflow Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowCompletionDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowCompletionResultDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request body is not a JSON object",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "UI session or completion nonce is invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workflow does not exist",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Workflow version changed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Completion input is invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Workflow database dependency is unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIErrorDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AchievementAttachmentDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "card_id": {
+            "type": "string",
+            "title": "Card Id"
+          },
+          "original_name": {
+            "type": "string",
+            "title": "Original Name"
+          },
+          "mime_type": {
+            "type": "string",
+            "title": "Mime Type"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "title": "Size Bytes"
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          },
+          "preview_state": {
+            "type": "string",
+            "title": "Preview State"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "row_version": {
+            "type": "integer",
+            "title": "Row Version"
+          },
+          "settings_version": {
+            "type": "integer",
+            "title": "Settings Version"
+          },
+          "path_schema_version": {
+            "type": "integer",
+            "title": "Path Schema Version"
+          },
+          "area_name_snapshot": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Area Name Snapshot"
+          },
+          "work_package_name_snapshot": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Work Package Name Snapshot"
+          },
+          "event_folder_snapshot": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Event Folder Snapshot"
+          },
+          "preview_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preview Error"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "card_id",
+          "original_name",
+          "mime_type",
+          "size_bytes",
+          "sha256",
+          "preview_state",
+          "created_at",
+          "row_version",
+          "settings_version",
+          "path_schema_version"
+        ],
+        "title": "AchievementAttachmentDTO",
+        "description": "Safe attachment descriptor exposed by native workbench endpoints."
+      },
+      "AchievementCardDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "context_id": {
+            "type": "string",
+            "title": "Context Id"
+          },
+          "workflow_id": {
+            "type": "string",
+            "title": "Workflow Id"
+          },
+          "work_package_id": {
+            "type": "string",
+            "title": "Work Package Id"
+          },
+          "week_item_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Week Item Id"
+          },
+          "event_date": {
+            "type": "string",
+            "title": "Event Date"
+          },
+          "event_name": {
+            "type": "string",
+            "title": "Event Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "is_important": {
+            "type": "boolean",
+            "title": "Is Important"
+          },
+          "row_version": {
+            "type": "integer",
+            "title": "Row Version"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "attachments": {
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/JsonValue"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Attachments"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "context_id",
+          "workflow_id",
+          "work_package_id",
+          "week_item_id",
+          "event_date",
+          "event_name",
+          "description",
+          "status",
+          "is_important",
+          "row_version",
+          "created_at",
+          "updated_at",
+          "attachments"
+        ],
+        "title": "AchievementCardDTO",
+        "description": "Legacy card response shape including its (empty in P2A) attachment array."
+      },
+      "AchievementCardDeleteDTO": {
+        "properties": {
+          "actor": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": "author"
+          },
+          "confirmation_token": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JsonValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expected_version": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "AchievementCardDeleteDTO",
+        "description": "Delete input requiring the legacy explicit confirmation token."
+      },
+      "AchievementCardImportanceDTO": {
+        "properties": {
+          "is_important": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": false
+          },
+          "expected_version": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": 0
+          },
+          "actor": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": "author"
+          },
+          "idempotency_key": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JsonValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "AchievementCardImportanceDTO",
+        "description": "Importance input preserving the legacy boolean coercion boundary."
+      },
+      "AchievementCardUpdateDTO": {
+        "properties": {
+          "event_date": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": ""
+          },
+          "event_name": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": ""
+          },
+          "description": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": ""
+          },
+          "expected_version": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": 0
+          },
+          "actor": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": "author"
+          }
+        },
+        "type": "object",
+        "title": "AchievementCardUpdateDTO",
+        "description": "Legacy-compatible edit input with route-edge string coercion."
+      },
+      "CardDeleteResultDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "deleted": {
+            "type": "boolean",
+            "title": "Deleted"
+          },
+          "context_id": {
+            "type": "string",
+            "title": "Context Id"
+          },
+          "workflow_id": {
+            "type": "string",
+            "title": "Workflow Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "deleted",
+          "context_id",
+          "workflow_id"
+        ],
+        "title": "CardDeleteResultDTO",
+        "description": "Exact legacy delete response fields."
+      },
+      "CardImportanceResultDTO": {
+        "properties": {
+          "card_id": {
+            "type": "string",
+            "title": "Card Id"
+          },
+          "is_important": {
+            "type": "boolean",
+            "title": "Is Important"
+          },
+          "changed": {
+            "type": "boolean",
+            "title": "Changed"
+          },
+          "row_version": {
+            "type": "integer",
+            "title": "Row Version"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "operation_id": {
+            "type": "string",
+            "title": "Operation Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "card_id",
+          "is_important",
+          "changed",
+          "row_version",
+          "updated_at",
+          "operation_id"
+        ],
+        "title": "CardImportanceResultDTO",
+        "description": "Exact legacy importance response fields."
+      },
+      "CatalogAreaDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name"
+          },
+          "work_packages": {
+            "items": {
+              "$ref": "#/components/schemas/WorkPackageDTO"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Work Packages"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "work_packages"
+        ],
+        "title": "CatalogAreaDTO"
+      },
+      "CatalogDTO": {
+        "properties": {
+          "version": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Version"
+          },
+          "areas": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogAreaDTO"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Areas"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "version",
+          "areas"
+        ],
+        "title": "CatalogDTO"
+      },
+      "CompletionAuthorizationResultDTO": {
+        "properties": {
+          "nonce_id": {
+            "type": "string",
+            "title": "Nonce Id"
+          },
+          "nonce_hash": {
+            "type": "string",
+            "title": "Nonce Hash"
+          },
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "workflow_id": {
+            "type": "string",
+            "title": "Workflow Id"
+          },
+          "expected_version": {
+            "type": "integer",
+            "title": "Expected Version"
+          },
+          "operation": {
+            "type": "string",
+            "title": "Operation"
+          },
+          "expires_at": {
+            "type": "number",
+            "title": "Expires At"
+          },
+          "context_id": {
+            "type": "string",
+            "title": "Context Id"
+          },
+          "work_package_id": {
+            "type": "string",
+            "title": "Work Package Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nonce_id",
+          "nonce_hash",
+          "session_id",
+          "workflow_id",
+          "expected_version",
+          "operation",
+          "expires_at",
+          "context_id",
+          "work_package_id"
+        ],
+        "title": "CompletionAuthorizationResultDTO"
+      },
+      "ContextDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "problem": {
+            "type": "string",
+            "title": "Problem"
+          },
+          "goal": {
+            "type": "string",
+            "title": "Goal"
+          },
+          "owner": {
+            "type": "string",
+            "title": "Owner"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "row_version": {
+            "type": "integer",
+            "title": "Row Version"
+          },
+          "lifecycle_state": {
+            "type": "string",
+            "title": "Lifecycle State"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "name",
+          "problem",
+          "goal",
+          "owner",
+          "created_at",
+          "row_version",
+          "lifecycle_state"
+        ],
+        "title": "ContextDTO",
+        "description": "Context row shape returned by the legacy list endpoint."
+      },
+      "ContextDeletionCommitDTO": {
+        "properties": {
+          "operation_id": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": ""
+          },
+          "confirmation": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": ""
+          },
+          "session_id": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "title": "ContextDeletionCommitDTO",
+        "description": "Consume a prepared deletion ticket exactly once."
+      },
+      "ContextDeletionCommitResultDTO": {
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "title": "Operation Id"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "retain_files": {
+            "type": "boolean",
+            "title": "Retain Files"
+          },
+          "idempotent": {
+            "type": "boolean",
+            "title": "Idempotent",
+            "default": false
+          },
+          "removed_attachment_count": {
+            "type": "integer",
+            "title": "Removed Attachment Count",
+            "default": 0
+          },
+          "manifest_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Ref"
+          },
+          "unresolved_files": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unresolved Files",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "operation_id",
+          "state",
+          "retain_files"
+        ],
+        "title": "ContextDeletionCommitResultDTO"
+      },
+      "ContextDeletionPrepareDTO": {
+        "properties": {
+          "retain_files": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": true
+          },
+          "expected_version": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": 0
+          },
+          "session_id": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "title": "ContextDeletionPrepareDTO",
+        "description": "Prepare a session-bound, one-time Context deletion ticket."
+      },
+      "ContextDeletionPrepareResultDTO": {
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "title": "Operation Id"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          },
+          "context_id": {
+            "type": "string",
+            "title": "Context Id"
+          },
+          "context_name": {
+            "type": "string",
+            "title": "Context Name"
+          },
+          "retain_files": {
+            "type": "boolean",
+            "title": "Retain Files"
+          },
+          "expected_version": {
+            "type": "integer",
+            "title": "Expected Version"
+          },
+          "confirmation": {
+            "type": "string",
+            "title": "Confirmation"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          },
+          "entity_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Entity Counts"
+          },
+          "attachments": {
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/JsonValue"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Attachments"
+          },
+          "manifest_digest": {
+            "type": "string",
+            "title": "Manifest Digest"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "operation_id",
+          "request_id",
+          "context_id",
+          "context_name",
+          "retain_files",
+          "expected_version",
+          "confirmation",
+          "expires_at",
+          "entity_counts",
+          "attachments",
+          "manifest_digest",
+          "state"
+        ],
+        "title": "ContextDeletionPrepareResultDTO",
+        "description": "Impact snapshot plus a confirmation token that is never persisted raw."
+      },
+      "ContextListDTO": {
+        "properties": {
+          "contexts": {
+            "items": {
+              "$ref": "#/components/schemas/ContextDTO"
+            },
+            "type": "array",
+            "title": "Contexts"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contexts"
+        ],
+        "title": "ContextListDTO"
+      },
+      "CreatedContextDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "problem": {
+            "type": "string",
+            "title": "Problem"
+          },
+          "goal": {
+            "type": "string",
+            "title": "Goal"
+          },
+          "owner": {
+            "type": "string",
+            "title": "Owner"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "name",
+          "problem",
+          "goal",
+          "owner",
+          "created_at"
+        ],
+        "title": "CreatedContextDTO",
+        "description": "Exact fields returned by the legacy context create command."
+      },
+      "DisclosurePreferenceDTO": {
+        "properties": {
+          "context_id": {
+            "type": "string",
+            "title": "Context Id"
+          },
+          "disclosure_kind": {
+            "type": "string",
+            "title": "Disclosure Kind"
+          },
+          "stable_subject_id": {
+            "type": "string",
+            "title": "Stable Subject Id"
+          },
+          "is_expanded": {
+            "type": "boolean",
+            "title": "Is Expanded"
+          },
+          "row_version": {
+            "type": "integer",
+            "title": "Row Version"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "context_id",
+          "disclosure_kind",
+          "stable_subject_id",
+          "is_expanded",
+          "row_version",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "DisclosurePreferenceDTO",
+        "description": "One Context disclosure object and its optimistic-lock version."
+      },
+      "DisclosurePreferenceListDTO": {
+        "properties": {
+          "context_id": {
+            "type": "string",
+            "title": "Context Id"
+          },
+          "local_user_key": {
+            "type": "string",
+            "title": "Local User Key"
+          },
+          "preferences": {
+            "items": {
+              "$ref": "#/components/schemas/DisclosurePreferenceDTO"
+            },
+            "type": "array",
+            "title": "Preferences"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "context_id",
+          "local_user_key",
+          "preferences"
+        ],
+        "title": "DisclosurePreferenceListDTO"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "JsonValue": {},
+      "ProgressDTO": {
+        "properties": {
+          "context_id": {
+            "type": "string",
+            "title": "Context Id"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "completed": {
+            "type": "integer",
+            "title": "Completed"
+          },
+          "ratio": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ratio"
+          },
+          "expected_total": {
+            "type": "integer",
+            "title": "Expected Total"
+          },
+          "snapshot_incomplete": {
+            "type": "boolean",
+            "title": "Snapshot Incomplete"
+          },
+          "warnings": {
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/JsonValue"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "missing_work_package_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missing Work Package Ids"
+          },
+          "extra_work_package_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Extra Work Package Ids"
+          },
+          "unassigned_work_package_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unassigned Work Package Ids"
+          },
+          "areas": {
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/JsonValue"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Areas"
+          },
+          "workflows": {
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/JsonValue"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Workflows"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "context_id",
+          "total",
+          "completed",
+          "ratio",
+          "expected_total",
+          "snapshot_incomplete",
+          "warnings",
+          "missing_work_package_ids",
+          "extra_work_package_ids",
+          "unassigned_work_package_ids",
+          "areas",
+          "workflows"
+        ],
+        "title": "ProgressDTO",
+        "description": "Legacy progress projection; warning variants intentionally remain JSON-typed."
+      },
+      "ReadinessDTO": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "database": {
+            "type": "string",
+            "title": "Database"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "database"
+        ],
+        "title": "ReadinessDTO"
+      },
+      "ResearchWorkflowDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "title": "Id"
+          },
+          "stage": {
+            "type": "string",
+            "pattern": "^(Explore|Execute|Express)$",
+            "title": "Stage"
+          },
+          "stage_name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Stage Name"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name"
+          },
+          "owner_role": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Owner Role"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Description"
+          },
+          "outputs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Outputs"
+          },
+          "work_package_ids": {
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]+$"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Work Package Ids"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "stage",
+          "stage_name",
+          "name",
+          "owner_role",
+          "description",
+          "outputs",
+          "work_package_ids"
+        ],
+        "title": "ResearchWorkflowDTO",
+        "description": "Public AI4SCIENCE workflow boundary; it is not a context workflow row."
+      },
+      "ResearchWorkflowMapDTO": {
+        "properties": {
+          "version": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Version"
+          },
+          "workflows": {
+            "items": {
+              "$ref": "#/components/schemas/ResearchWorkflowDTO"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Workflows"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "version",
+          "workflows"
+        ],
+        "title": "ResearchWorkflowMapDTO"
+      },
+      "UiSessionIssueResultDTO": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "expires_at": {
+            "type": "number",
+            "title": "Expires At"
+          },
+          "actor": {
+            "type": "string",
+            "title": "Actor"
+          },
+          "display_label": {
+            "type": "string",
+            "title": "Display Label"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "session_id",
+          "expires_at",
+          "actor",
+          "display_label"
+        ],
+        "title": "UiSessionIssueResultDTO"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "WorkPackageDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name"
+          },
+          "action": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Action"
+          },
+          "deliverable": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Deliverable"
+          },
+          "template": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Template"
+          },
+          "skill": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Skill"
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Category"
+          },
+          "stage": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Stage"
+          },
+          "next_step_definition": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Next Step Definition"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "action",
+          "deliverable",
+          "template",
+          "skill",
+          "category",
+          "stage",
+          "next_step_definition"
+        ],
+        "title": "WorkPackageDTO",
+        "description": "Public work package contract; nested catalog assets remain JSON-typed."
+      },
+      "WorkflowCompletionDTO": {
+        "properties": {
+          "completed": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": false
+          },
+          "expected_version": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": 0
+          },
+          "session_id": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": ""
+          },
+          "nonce_id": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": ""
+          },
+          "nonce_hash": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": ""
+          },
+          "idempotency_key": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JsonValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "WorkflowCompletionDTO",
+        "description": "Completion input with mandatory UI session and one-time nonce fields."
+      },
+      "WorkflowCompletionResultDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "context_id": {
+            "type": "string",
+            "title": "Context Id"
+          },
+          "work_package_id": {
+            "type": "string",
+            "title": "Work Package Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "is_completed": {
+            "type": "boolean",
+            "title": "Is Completed"
+          },
+          "completion_row_version": {
+            "type": "integer",
+            "title": "Completion Row Version"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "completed_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed By"
+          },
+          "area_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Area Id"
+          },
+          "template_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Template Id"
+          },
+          "skill_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill Id"
+          },
+          "selection_status": {
+            "type": "string",
+            "title": "Selection Status"
+          },
+          "selection_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selection Reason"
+          },
+          "author_confirmed": {
+            "type": "boolean",
+            "title": "Author Confirmed"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode"
+          },
+          "row_version": {
+            "type": "integer",
+            "title": "Row Version"
+          },
+          "archived": {
+            "type": "boolean",
+            "title": "Archived"
+          },
+          "inputs_json": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Inputs Json"
+          },
+          "idempotent": {
+            "type": "boolean",
+            "title": "Idempotent"
+          },
+          "has_achievement_cards": {
+            "type": "boolean",
+            "title": "Has Achievement Cards"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "context_id",
+          "work_package_id",
+          "status",
+          "created_at",
+          "is_completed",
+          "completion_row_version",
+          "completed_at",
+          "completed_by",
+          "area_id",
+          "template_id",
+          "skill_id",
+          "selection_status",
+          "selection_reason",
+          "author_confirmed",
+          "mode",
+          "row_version",
+          "archived",
+          "inputs_json",
+          "idempotent",
+          "has_achievement_cards"
+        ],
+        "title": "WorkflowCompletionResultDTO",
+        "description": "Legacy-compatible workflow projection with idempotency visibility."
+      },
+      "WorkflowDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "context_id": {
+            "type": "string",
+            "title": "Context Id"
+          },
+          "work_package_id": {
+            "type": "string",
+            "title": "Work Package Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "is_completed": {
+            "type": "boolean",
+            "title": "Is Completed"
+          },
+          "completion_row_version": {
+            "type": "integer",
+            "title": "Completion Row Version"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "completed_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed By"
+          },
+          "area_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Area Id"
+          },
+          "template_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Template Id"
+          },
+          "skill_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill Id"
+          },
+          "selection_status": {
+            "type": "string",
+            "title": "Selection Status"
+          },
+          "selection_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selection Reason"
+          },
+          "author_confirmed": {
+            "type": "boolean",
+            "title": "Author Confirmed"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode"
+          },
+          "row_version": {
+            "type": "integer",
+            "title": "Row Version"
+          },
+          "archived": {
+            "type": "boolean",
+            "title": "Archived"
+          },
+          "inputs_json": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Inputs Json"
+          },
+          "achievement_cards": {
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/JsonValue"
+              },
+              "type": "object",
+              "minProperties": 0
+            },
+            "type": "array",
+            "title": "Achievement Cards"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "context_id",
+          "work_package_id",
+          "status",
+          "created_at",
+          "is_completed",
+          "completion_row_version",
+          "completed_at",
+          "completed_by",
+          "area_id",
+          "template_id",
+          "skill_id",
+          "selection_status",
+          "selection_reason",
+          "author_confirmed",
+          "mode",
+          "row_version",
+          "archived",
+          "inputs_json",
+          "achievement_cards"
+        ],
+        "title": "WorkflowDTO",
+        "description": "Complete workflow row plus the legacy achievement card projection."
+      },
+      "WorkflowListDTO": {
+        "properties": {
+          "workflows": {
+            "items": {
+              "$ref": "#/components/schemas/WorkflowDTO"
+            },
+            "type": "array",
+            "title": "Workflows"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/ProgressDTO"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "workflows",
+          "progress"
+        ],
+        "title": "WorkflowListDTO"
+      },
+      "WorkflowRecordDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "context_id": {
+            "type": "string",
+            "title": "Context Id"
+          },
+          "work_package_id": {
+            "type": "string",
+            "title": "Work Package Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "is_completed": {
+            "type": "boolean",
+            "title": "Is Completed"
+          },
+          "completion_row_version": {
+            "type": "integer",
+            "title": "Completion Row Version"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "completed_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed By"
+          },
+          "area_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Area Id"
+          },
+          "template_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Template Id"
+          },
+          "skill_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill Id"
+          },
+          "selection_status": {
+            "type": "string",
+            "title": "Selection Status"
+          },
+          "selection_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selection Reason"
+          },
+          "author_confirmed": {
+            "type": "boolean",
+            "title": "Author Confirmed"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode"
+          },
+          "row_version": {
+            "type": "integer",
+            "title": "Row Version"
+          },
+          "archived": {
+            "type": "boolean",
+            "title": "Archived"
+          },
+          "inputs_json": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Inputs Json"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "context_id",
+          "work_package_id",
+          "status",
+          "created_at",
+          "is_completed",
+          "completion_row_version",
+          "completed_at",
+          "completed_by",
+          "area_id",
+          "template_id",
+          "skill_id",
+          "selection_status",
+          "selection_reason",
+          "author_confirmed",
+          "mode",
+          "row_version",
+          "archived",
+          "inputs_json"
+        ],
+        "title": "WorkflowRecordDTO",
+        "description": "Workflow row without the heavier card projection."
+      },
+      "WorkflowSelectionDTO": {
+        "properties": {
+          "wp_id": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": ""
+          },
+          "selection_status": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": ""
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JsonValue"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "author_confirmed": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": false
+          },
+          "expected_version": {
+            "$ref": "#/components/schemas/JsonValue",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "WorkflowSelectionDTO",
+        "description": "Selection input keyed by work package inside one context."
+      },
+      "APIErrorDTO": {
+        "additionalProperties": false,
+        "description": "Stable problem payload used by every target API error response.",
+        "properties": {
+          "code": {
+            "examples": [
+              "INVALID_INPUT"
+            ],
+            "minLength": 1,
+            "title": "Code",
+            "type": "string"
+          },
+          "detail": {
+            "examples": [
+              "请求参数无效"
+            ],
+            "minLength": 1,
+            "title": "Detail",
+            "type": "string"
+          },
+          "requestId": {
+            "examples": [
+              "5f0d5b3a6cbf4f21916d1bd5f47b28c1"
+            ],
+            "minLength": 1,
+            "pattern": "^[0-9a-f]{32}$",
+            "title": "Requestid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "detail",
+          "requestId"
+        ],
+        "title": "APIErrorDTO",
+        "type": "object"
+      }
+    }
+  }
+}

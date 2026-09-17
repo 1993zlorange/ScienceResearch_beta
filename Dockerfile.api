@@ -1,0 +1,21 @@
+# Python dependency and target API image; no formal data or secret is baked in.
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS api
+
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/apps/api/src
+
+WORKDIR /app
+COPY pyproject.toml uv.lock ./
+RUN uv sync --locked --no-dev --no-install-project
+
+COPY apps/api/src ./apps/api/src
+COPY database/migrations ./database/migrations
+COPY database/seeds/catalog ./database/seeds/catalog
+COPY scripts/serve.py ./scripts/serve.py
+
+ENV PATH="/app/.venv/bin:${PATH}"
+EXPOSE 8000
+CMD ["uvicorn", "scienceresearch.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]
+

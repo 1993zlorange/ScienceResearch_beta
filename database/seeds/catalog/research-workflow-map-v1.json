@@ -1,0 +1,255 @@
+{
+  "version": "20260917.v1",
+  "source_manual": "AI4SCIENCE 教学手册 20260915 版；MAP-WFM-20260917-V1 已获用户批准",
+  "workflows": [
+    {
+      "id": "PI-E01",
+      "stage": "Explore",
+      "stage_name": "探索",
+      "name": "问题定义",
+      "owner_role": "首席研究员",
+      "description": "把模糊想法变成有范围、有价值、有周期的问题。",
+      "outputs": [
+        "问题定义",
+        "边界",
+        "P0 计划"
+      ],
+      "work_package_ids": [
+        "WP-001",
+        "WP-002",
+        "WP-003",
+        "WP-005"
+      ]
+    },
+    {
+      "id": "MB-E01",
+      "stage": "Explore",
+      "stage_name": "探索",
+      "name": "方法蓝图构建",
+      "owner_role": "方法构建者",
+      "description": "从文献证据到假设、创新点和模型蓝图。",
+      "outputs": [
+        "证据卡",
+        "知识树",
+        "假设",
+        "架构"
+      ],
+      "work_package_ids": [
+        "WP-007",
+        "WP-008",
+        "WP-009",
+        "WP-010",
+        "WP-011",
+        "WP-012",
+        "WP-013",
+        "WP-014",
+        "WP-015",
+        "WP-016",
+        "WP-017",
+        "WP-018",
+        "WP-022",
+        "WP-023",
+        "WP-024"
+      ]
+    },
+    {
+      "id": "CR-E01",
+      "stage": "Explore",
+      "stage_name": "探索",
+      "name": "探索批判评审",
+      "owner_role": "批判性评审员",
+      "description": "独立挑战问题、最近邻、机制和反例。",
+      "outputs": [
+        "差距报告",
+        "反例",
+        "风险审计"
+      ],
+      "work_package_ids": [
+        "WP-004",
+        "WP-006",
+        "WP-019",
+        "WP-021"
+      ]
+    },
+    {
+      "id": "EX-E01",
+      "stage": "Explore",
+      "stage_name": "探索",
+      "name": "最小证伪设计",
+      "owner_role": "实验员",
+      "description": "设计最小证伪、资源预算和失败回退。",
+      "outputs": [
+        "实验卡",
+        "预算",
+        "回退方案"
+      ],
+      "work_package_ids": [
+        "WP-020",
+        "WP-028",
+        "WP-029"
+      ]
+    },
+    {
+      "id": "PI-X01",
+      "stage": "Execute",
+      "stage_name": "执行",
+      "name": "执行路线决策",
+      "owner_role": "首席研究员",
+      "description": "执行研究设计冻结 Gate、结果证据门和路线决策。",
+      "outputs": [
+        "Gate 决定",
+        "资源路线",
+        "claim 边界"
+      ],
+      "work_package_ids": [
+        "WP-048",
+        "WP-059",
+        "WP-060",
+        "WP-061",
+        "WP-062",
+        "WP-064",
+        "WP-065",
+        "WP-066",
+        "WP-067"
+      ]
+    },
+    {
+      "id": "MB-X01",
+      "stage": "Execute",
+      "stage_name": "执行",
+      "name": "实现契约冻结",
+      "owner_role": "方法构建者",
+      "description": "冻结 schema、baseline、模块契约、实现计划和接口。",
+      "outputs": [
+        "可实现契约",
+        "接口文档",
+        "修复交接"
+      ],
+      "work_package_ids": [
+        "WP-025",
+        "WP-026",
+        "WP-027",
+        "WP-063"
+      ]
+    },
+    {
+      "id": "EX-X01",
+      "stage": "Execute",
+      "stage_name": "执行",
+      "name": "正式实验执行",
+      "owner_role": "实验员",
+      "description": "建立数据质控和正式实验矩阵，保留完整运行证据。",
+      "outputs": [
+        "实验日志",
+        "指标",
+        "产物",
+        "run manifest"
+      ],
+      "work_package_ids": [
+        "WP-030",
+        "WP-031",
+        "WP-032",
+        "WP-033",
+        "WP-034",
+        "WP-035",
+        "WP-036",
+        "WP-037",
+        "WP-038",
+        "WP-039",
+        "WP-046"
+      ]
+    },
+    {
+      "id": "CR-X01",
+      "stage": "Execute",
+      "stage_name": "执行",
+      "name": "执行完整性审计",
+      "owner_role": "批判性评审员",
+      "description": "审计完整性、泄漏、误差、归因和最小诊断。",
+      "outputs": [
+        "完整性报告",
+        "原因树",
+        "诊断建议"
+      ],
+      "work_package_ids": [
+        "WP-040",
+        "WP-044",
+        "WP-045"
+      ]
+    },
+    {
+      "id": "EX-P01",
+      "stage": "Express",
+      "stage_name": "表达",
+      "name": "定量证据表达",
+      "owner_role": "实验员",
+      "description": "完成定量分析、切片、案例、机制证据和核心图。",
+      "outputs": [
+        "统计表",
+        "案例",
+        "Figure brief"
+      ],
+      "work_package_ids": [
+        "WP-041",
+        "WP-042",
+        "WP-043",
+        "WP-047",
+        "WP-053"
+      ]
+    },
+    {
+      "id": "MB-P01",
+      "stage": "Express",
+      "stage_name": "表达",
+      "name": "方法与实验写作",
+      "owner_role": "方法构建者",
+      "description": "按冻结设计和真实运行记录写可复现方法与实验。",
+      "outputs": [
+        "方法章",
+        "实验章",
+        "复现说明"
+      ],
+      "work_package_ids": [
+        "WP-051",
+        "WP-052",
+        "WP-058"
+      ]
+    },
+    {
+      "id": "PI-P01",
+      "stage": "Express",
+      "stage_name": "表达",
+      "name": "主张与归档决策",
+      "owner_role": "首席研究员",
+      "description": "收敛主张、叙事、修订、报告和归档决定。",
+      "outputs": [
+        "摘要",
+        "故事线",
+        "交付决定"
+      ],
+      "work_package_ids": [
+        "WP-049",
+        "WP-050",
+        "WP-054",
+        "WP-068"
+      ]
+    },
+    {
+      "id": "CR-P01",
+      "stage": "Express",
+      "stage_name": "表达",
+      "name": "成果批判评审",
+      "owner_role": "批判性评审员",
+      "description": "对草稿执行独立同行评审和意见拆解。",
+      "outputs": [
+        "审稿报告",
+        "修改矩阵"
+      ],
+      "work_package_ids": [
+        "WP-055",
+        "WP-056",
+        "WP-057"
+      ]
+    }
+  ]
+}

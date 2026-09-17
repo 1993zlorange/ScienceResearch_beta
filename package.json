@@ -1,0 +1,21 @@
+{
+  "name": "scienceresearch-workbench",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Offline ScienceResearch workbench Vue frontend workspace.",
+  "workspaces": [
+    "apps/web"
+  ],
+  "scripts": {
+    "dev": "npm --workspace apps/web run dev",
+    "build": "npm run docs:build && npm --workspace apps/web run build",
+    "contracts:generate": "npm run contracts:openapi && openapi-typescript packages/contracts/scienceresearch.openapi.json --output packages/contracts/scienceresearch-api.ts",
+    "check": "npm --workspace apps/web run typecheck",
+    "test": "npm --workspace apps/web run test",
+    "test:e2e": "npm --workspace apps/web run test:e2e",
+    "contracts:openapi": "uv run python scripts/export_openapi.py",
+    "contracts:verify": "npm run contracts:generate && git diff --exit-code -- packages/contracts",
+    "docs:build": "python scripts/build_technical_manuals.py --project-root .",
+    "docs:check": "python scripts/build_technical_manuals.py --project-root . --check"
+  }
+}

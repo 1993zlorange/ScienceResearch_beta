@@ -1,0 +1,90 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scienceresearch"
+version = "0.2.0"
+description = "Offline research workbench"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115,<1",
+    "pydantic>=2.9,<3",
+    "pydantic-settings>=2.6,<3",
+    "sqlalchemy>=2.0,<3",
+    "alembic>=1.14,<2",
+    "psycopg[binary]>=3.2,<4",
+    "uvicorn>=0.32,<1",
+    # Transitional compatibility runtime; remove only after ADR-STK-001 Phase 7.
+    "Flask>=3.1,<4",
+    "waitress>=3.0,<4",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.27,<1",
+    "mypy>=1.13,<2",
+    "pytest>=8,<9",
+    "ruff>=0.8,<1",
+    "types-waitress>=3,<4",
+]
+
+[project.scripts]
+scienceresearch = "scienceresearch.__main__:main"
+
+[tool.setuptools]
+package-dir = {"" = "apps/api/src"}
+
+[tool.setuptools.packages.find]
+where = ["apps/api/src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "apps/api/tests"]
+pythonpath = ["apps/api/src"]
+addopts = "--strict-markers -q"
+
+
+[[tool.mypy.overrides]]
+# Frozen migration runtimes are outside Phase 1 typing scope and are removed in ADR-STK-001 Phase 7.
+module = [
+  "scienceresearch.core",
+  "scienceresearch.web",
+  "scienceresearch.flask_app",
+  "scienceresearch.__main__",
+  "scienceresearch.cli",
+]
+ignore_errors = true
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+# Phase 1 checks target-stack code; frozen Flask/SQLite files and historical tests remain excluded until their phases.
+include = [
+  "apps/api/src/scienceresearch/main.py",
+  "apps/api/src/scienceresearch/settings.py",
+  "apps/api/src/scienceresearch/api/**/*.py",
+  "apps/api/src/scienceresearch/application/**/*.py",
+  "apps/api/src/scienceresearch/domain/**/*.py",
+  "apps/api/src/scienceresearch/adapters/**/*.py",
+  "database/migrations/**/*.py",
+  "database/scripts/*.py",
+  "scripts/serve.py",
+  "scripts/export_openapi.py",
+  "apps/api/tests/test_target_*.py",
+  "apps/api/tests/test_sqlite_inspection.py",
+  "tests/migration/**/*.py",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+mypy_path = "apps/api/src"
+packages = ["scienceresearch"]
+plugins = ["pydantic.mypy"]
+check_untyped_defs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+warn_unused_ignores = true

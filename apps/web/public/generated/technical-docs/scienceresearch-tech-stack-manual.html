@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="data:,">
+<title>ScienceResearch 技术栈教学手册</title>
+<meta name="description" content="以通俗方式解释 ScienceResearch 目标技术栈、迁移期兼容栈、每项技术的职责、项目文件夹和实现方式。">
+<style>
+:root{color-scheme:light;--bg:#f5f7fb;--panel:#fff;--panel-soft:#f8fafc;--ink:#172033;--muted:#5b6578;--line:#dbe2ee;--brand:#155eef;--brand-ink:#0b3fbb;--brand-soft:#edf4ff;--warn-soft:#fff5e5;--radius:14px;--shadow:0 1px 2px rgba(23,32,51,.05),0 8px 24px rgba(23,32,51,.06)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI","Microsoft YaHei",system-ui,-apple-system,sans-serif;line-height:1.72}
+a{color:var(--brand);text-decoration:none}a:hover{color:var(--brand-ink);text-decoration:underline}:focus-visible{outline:3px solid #78a9ff;outline-offset:3px;border-radius:6px}
+.skip{position:absolute;left:-9999px}.skip:focus{left:16px;top:12px;padding:10px 14px;background:#fff;border:1px solid var(--line);border-radius:8px;z-index:100}
+.topbar{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}.topbar-inner{max-width:1440px;margin:auto;padding:12px 28px;display:flex;align-items:center;gap:18px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:750;color:var(--ink)}.brand-mark{width:32px;height:32px;display:grid;place-items:center;border-radius:9px;background:var(--brand);color:#fff;font-size:13px;font-weight:800}.topbar nav{margin-left:auto;display:flex;gap:18px;font-size:14px}
+.layout{max-width:1440px;margin:auto;display:grid;grid-template-columns:280px minmax(0,1fr) 230px;gap:32px;padding:34px 28px 88px}
+.sidebar{position:sticky;top:75px;align-self:start;max-height:calc(100vh - 100px);overflow:auto;padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.sidebar h2{margin:0 0 10px;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.sidebar ul{list-style:none;margin:0;padding:0;font-size:14px}.sidebar li+li{border-top:1px solid #edf1f7}.sidebar a{display:block;padding:10px 8px;color:var(--ink);border-radius:8px}.sidebar a:hover{background:var(--brand-soft);text-decoration:none;color:var(--brand-ink)}
+.sidebar-note{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}main{min-width:0}
+.page-head{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:38px}.breadcrumb{font-size:13px;color:var(--muted);margin-bottom:18px}.breadcrumb a{color:var(--muted)}
+.eyebrow{display:inline-flex;padding:5px 10px;border-radius:999px;background:var(--brand-soft);color:var(--brand-ink);font-size:12px;font-weight:700;margin-bottom:16px}h1{margin:0;font-size:clamp(30px,4vw,46px);line-height:1.18;letter-spacing:-.03em;text-wrap:balance}.subtitle{margin:16px 0 0;max-width:780px;font-size:17px;color:var(--muted)}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;font-size:13px}.meta span{padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel-soft)}
+section.level{margin-top:36px;scroll-margin-top:90px}.section-head{margin-bottom:18px}h2{margin:0;font-size:clamp(22px,2.6vw,31px);line-height:1.25;letter-spacing:-.02em;scroll-margin-top:90px;text-wrap:balance}h3{margin:26px 0 10px;font-size:18px}h4{margin:0;font-size:19px}h5{margin:0 0 7px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.055em}p{margin:0 0 10px}.lede{color:var(--muted);max-width:780px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px}
+.stack{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;list-style:none;padding:0;margin:0}.stack li{background:var(--panel-soft);border:1px solid var(--line);border-radius:12px;padding:16px}.stack strong{display:block;margin-bottom:5px}.stack span{font-size:14px;color:var(--muted)}.arrow{display:block;text-align:center;color:var(--brand);font-weight:800;margin:8px 0}
+.callout{margin-top:20px;padding:18px;border-left:4px solid var(--brand);background:var(--brand-soft);border-radius:0 12px 12px 0}.warn{border-left-color:#d97706;background:var(--warn-soft)}
+.tech-list{display:grid;gap:18px}.tech-card{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--brand);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;scroll-margin-top:90px}.card-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}.tech-badge{padding:4px 8px;border-radius:7px;background:#e8edf6;color:#43536f;font-size:12px;font-weight:700}.analogy{margin:0 0 18px;font-size:16px;font-weight:650;color:var(--brand-ink)}
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}.tech-grid section{padding:14px;background:var(--panel-soft);border:1px solid var(--line);border-radius:10px}.implementation{margin-top:16px;padding:16px;border:1px dashed #b9c6da;border-radius:10px;background:#fbfcff}.implementation ul{margin:0;padding-left:20px}.implementation li{margin:6px 0;overflow-wrap:anywhere}
+.tech-card footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:14px}.tech-card footer p{margin:0}
+.table-scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);font-size:14px}caption{text-align:left;font-weight:700;padding:14px 16px 8px}th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#eef2f8;font-size:13px;color:#38465d}tr:last-child td{border-bottom:0}
+code{font-family:Consolas,"Cascadia Mono",monospace;font-size:.92em;background:#edf1f7;padding:2px 5px;border-radius:5px;overflow-wrap:anywhere}.faq{display:grid;gap:12px}.faq details{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:14px 18px}.faq summary{cursor:pointer;font-weight:700}.faq details[open] summary{color:var(--brand-ink)}
+.source-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}.source-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow)}.source-card strong{display:block;margin-bottom:6px}.source-card p{font-size:14px;color:var(--muted)}
+.toc{position:sticky;top:75px;align-self:start;padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);font-size:13px}.toc h2{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}.toc ul{list-style:none;margin:0;padding:0}.toc a{display:block;padding:6px 0;color:var(--muted)}
+footer.page-footer{border-top:1px solid var(--line);background:#fff}.footer-inner{max-width:1440px;margin:auto;padding:26px 28px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+@media(max-width:1180px){.layout{grid-template-columns:250px minmax(0,1fr)}.toc{display:none}}
+@media(max-width:840px){body{font-size:16px}.layout{display:block;padding:20px 16px 70px}.sidebar{position:static;max-height:none;margin-bottom:22px}.sidebar a{padding:12px 10px}.topbar-inner{padding:12px 16px}.topbar nav{display:none}.page-head,.panel,.tech-card{padding:20px;border-radius:12px}.table-scroll{margin:0 -16px;padding:0 16px}table{min-width:620px;font-size:15px}th,td{padding:11px 12px}.implementation li{margin:8px 0}.tech-card footer{display:block}.tech-card footer p+p{margin-top:8px}}
+@media(max-width:520px){h1{font-size:29px}.tech-grid{display:block}.tech-grid section+section{margin-top:12px}}
+@media print{.topbar,.sidebar,.toc,.skip{display:none}body{background:#fff}.layout{display:block;max-width:none;padding:0}.panel,.tech-card,.page-head{box-shadow:none;break-inside:avoid}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要内容</a>
+<header class="topbar"><div class="topbar-inner">
+<a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">SR</span>ScienceResearch 教学手册</a>
+<nav aria-label="页面主要导航"><a href="#request">请求旅程</a><a href="#backend">后端</a><a href="#frontend">前端</a><a href="#quality">质量</a><a href="#research">参考资料</a></nav>
+</div></header>
+<div class="layout">
+<aside class="sidebar" aria-label="手册目录"><h2>本页目录</h2><ul><li><a href="#start">开始阅读</a></li>
+<li><a href="#request">一条请求的旅程</a></li>
+<li><a href="#map">学习地图</a></li>
+<li><a href="#backend">后端与数据</a></li>
+<li><a href="#frontend">前端与契约</a></li>
+<li><a href="#compat">迁移兼容栈</a></li>
+<li><a href="#quality">测试与质量</a></li>
+<li><a href="#deploy">构建部署与治理</a></li>
+<li><a href="#folders">按文件夹找代码</a></li>
+<li><a href="#faq">常见问题</a></li>
+<li><a href="#research">在线 Skill 调研</a></li></ul><p class="sidebar-note">本页是项目工程文档；不加载外部资源，不收集数据，不替代官方文档。</p></aside>
+<main id="main"><article>
+<header class="page-head" id="start">
+<nav class="breadcrumb" aria-label="面包屑">工程文档 / Architecture / 技术栈教学手册</nav>
+<span class="eyebrow">面向初学者 · 项目事实 · 可离线阅读</span>
+<h1>ScienceResearch 技术栈教学手册</h1>
+<p class="subtitle">这份手册把“项目里有哪些技术、它们各自做什么、源码放在哪里、在项目中如何协作”讲成一堂可以按顺序阅读的入门课。它优化自《项目技术栈目录映射》，但更强调解释和源码走读。</p>
+<div class="meta" aria-label="文档信息"><span>文档日期：2026-09-15</span><span>工程根：<code>scienceresearch/project</code></span><span>证据来源：仓库清单、源码、配置与治理记录</span></div>
+</header>
+<section class="level panel" id="request" aria-labelledby="request-title">
+<div class="section-head"><div><h2 id="request-title">一条请求的旅程</h2><p class="lede">先别记技术名词。把一次“打开课题工作台”的请求当成一条流水线，每个技术只负责一段。</p></div></div>
+<ol class="stack">
+<li><strong>浏览器地址</strong><span>用户访问 <code>/contexts</code>。</span></li>
+<li><strong>Vue Router</strong><span>把 URL 映射到课题页面组件。</span></li>
+<li><strong>TanStack Query</strong><span>发现需要课题数据，调用 service。</span></li>
+<li><strong>API service + OpenAPI 类型</strong><span>用 fetch 调 <code>/api/v1/contexts</code>。</span></li>
+<li><strong>Vite 或 Nginx</strong><span>开发期 Vite 代理；生产期 Nginx 转发到 API。</span></li>
+<li><strong>Uvicorn + FastAPI</strong><span>HTTP 进入目标路由，DTO 校验输入。</span></li>
+<li><strong>Application / Domain</strong><span>用例编排事务，业务规则框架无关。</span></li>
+<li><strong>SQLAlchemy + psycopg</strong><span>仓储执行 SQL，驱动连接 PostgreSQL。</span></li>
+<li><strong>响应回到页面</strong><span>Query 更新缓存，Vue 渲染工作台。</span></li>
+<li><strong>未迁移路径</strong><span>FastAPI 未匹配时进入 Flask/SQLite 兼容桥。</span></li>
+</ol>
+<p class="arrow" aria-hidden="true">↓</p>
+<div class="callout"><strong>一句话理解双栈：</strong>目标是 FastAPI + PostgreSQL 的原生模块化单体；迁移期保留 Flask + SQLite 作为同源兼容层。新功能优先目标栈，旧路径不能突然失效。</div>
+</section>
+<section class="level" id="map" aria-labelledby="map-title">
+<div class="section-head"><div><h2 id="map-title">学习地图</h2><p class="lede">推荐按“入口 → 合同 → 业务 → 数据 → 前端 → 测试 → 部署”的顺序建立地图。</p></div></div><div class="callout"><strong>路径约定：</strong>完整仓库路径以 <code>scienceresearch/project</code> 开头。为避免每张卡片重复长前缀，后端卡片里的 <code>api/</code>、<code>application/</code>、<code>domain/</code>、<code>adapters/</code> 默认位于 <code>apps/api/src/scienceresearch/</code>；前端卡片里的 <code>main.ts</code>、<code>router/</code>、<code>features/</code>、<code>views/</code> 默认位于 <code>apps/web/src/</code>。</div>
+<div class="table-scroll"><table><caption>从哪里开始读，能看懂什么</caption>
+<thead><tr><th scope="col">学习阶段</th><th scope="col">先看</th><th scope="col">你会明白</th></tr></thead><tbody>
+<tr><td>1. 项目概况</td><td><code>README.md</code>、<code>pyproject.toml</code>、<code>package.json</code></td><td>项目定位、命令和依赖范围。</td></tr>
+<tr><td>2. 后端入口</td><td><code>apps/api/src/scienceresearch/main.py</code></td><td>FastAPI 如何组合路由、配置和兼容层。</td></tr>
+<tr><td>3. API 合同</td><td><code>api/routes/</code>、<code>api/dto/</code>、<code>packages/contracts/</code></td><td>请求如何被校验并形成 OpenAPI 类型。</td></tr>
+<tr><td>4. 业务和数据</td><td><code>application/</code>、<code>domain/</code>、<code>adapters/persistence/</code></td><td>业务规则、事务边界和 PostgreSQL 访问。</td></tr>
+<tr><td>5. 前端结构</td><td><code>main.ts</code>、<code>router/</code>、<code>features/</code>、<code>views/</code></td><td>页面、路由和请求状态如何组织。</td></tr>
+<tr><td>6. 验证</td><td><code>apps/api/tests/</code>、<code>apps/web/tests/</code>、<code>tests/</code></td><td>单元、契约、迁移和 E2E 各守什么关。</td></tr>
+<tr><td>7. 运行</td><td><code>docker-compose.yml</code>、Dockerfile、Nginx、CI</td><td>本地与隔离部署的完整拓扑。</td></tr>
+</tbody></table></div>
+</section>
+
+<section class="level" id="backend" aria-labelledby="backend-title">
+<div class="section-head"><div><h2 id="backend-title">后端与数据</h2><p class="lede">这一组技术负责“接收请求、执行业务规则、可靠保存状态”。</p></div></div>
+<div class="tech-list"><article class="tech-card" id="python">
+<div class="card-head"><span class="tech-badge">基础运行时</span><h4>Python 3.12</h4></div>
+<p class="analogy">后端世界的“书写语言”</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>Python 是编写本项目后端业务规则、API、脚本和测试的编程语言。可以把其他工具想象成灶台和锅，Python 则是写菜谱、判断火候的核心语言。</p></section><section><h5>项目里承担什么</h5><p>项目要求 Python 3.12+，使用类型标注、Pydantic、分层包结构和现代测试工具。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>apps/api/src/scienceresearch/</code>：后端包根，按 domain/application/adapters/api 分层。</li><li><code>apps/api/tests/</code>：Python API 与仓储测试。</li><li><code>scripts/</code>、<code>database/scripts/</code>、<code>tests/</code>：服务启动、迁移、治理和契约脚本。</li><li><code>pyproject.toml</code>：声明 Python 版本、依赖和 pytest/mypy/ruff 配置。</li></ul></section>
+<footer><p><strong>学习提示：</strong>先读 <code>pyproject.toml</code> 了解依赖，再从 <code>main.py</code> 进入后端。</p><p><a href="https://docs.python.org/3/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="fastapi">
+<div class="card-head"><span class="tech-badge">目标后端</span><h4>FastAPI</h4></div>
+<p class="analogy">对外接待窗口与合同检查台</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>FastAPI 是 Python Web API 框架，负责接收 HTTP 请求、校验输入、调用用例并返回 JSON/OpenAPI 文档。类比银行柜面：先检查表单，再交给后台处理。</p></section><section><h5>项目里承担什么</h5><p>目标 API 以 FastAPI 为组合根，优先匹配 <code>/api/v1/*</code>、<code>/healthz</code>、<code>/readyz</code>；未迁移路径再落到 Flask 兼容桥。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>apps/api/src/scienceresearch/main.py</code>：创建 FastAPI，安装错误处理、路由、CORS 和 WSGI 挂载。</li><li><code>api/routes/</code>：健康检查、目录和课题路由。</li><li><code>api/errors.py</code>：异常转稳定 JSON 错误。</li><li><code>application/</code>、<code>domain/</code>：业务编排与规则，路由不复制业务。</li></ul></section>
+<footer><p><strong>学习提示：</strong>看 <code>create_app()</code>：先目标路由，再 legacy 挂载。</p><p><a href="https://fastapi.tiangolo.com/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="pydantic">
+<div class="card-head"><span class="tech-badge">目标后端</span><h4>Pydantic v2 / pydantic-settings</h4></div>
+<p class="analogy">数据表格的验钞机</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>Pydantic 把 API 输入输出变成有类型模型，自动检查字段、默认值和错误；pydantic-settings 从环境变量读取配置，避免密码或路径写死。</p></section><section><h5>项目里承担什么</h5><p>DTO 定义在 API 边界，Settings 定义环境、数据库 URL、artifact root 和日志级别。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>api/dto/catalog.py</code>、<code>context.py</code>、<code>errors.py</code>：请求/响应 DTO。</li><li><code>settings.py</code>：BaseSettings 读取并校验配置。</li><li><code>apps/api/tests/test_target_settings_persistence.py</code> 等覆盖边界。</li></ul></section>
+<footer><p><strong>学习提示：</strong>domain 不依赖 Pydantic；DTO 停在 API 边界。</p><p><a href="https://docs.pydantic.dev/latest/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="sqlalchemy">
+<div class="card-head"><span class="tech-badge">目标数据</span><h4>SQLAlchemy 2</h4></div>
+<p class="analogy">Python 对象与 SQL 的翻译官</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>SQLAlchemy 是 ORM/数据库工具包，让 Python Repository/Session 操作对象，底层生成 SQL，同时管理事务、连接池和错误转换。</p></section><section><h5>项目里承担什么</h5><p>路由不持有 Session；事务由 Unit of Work 拥有，仓储通过 Session 读写。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>adapters/persistence/session.py</code>：Base、Engine、PostgresUnitOfWork、commit/rollback。</li><li><code>adapters/persistence/models.py</code>：ORM 模型和 JSONB 映射。</li><li><code>adapters/persistence/context_repository.py</code>：课题、工作流、成效卡仓储。</li></ul></section>
+<footer><p><strong>学习提示：</strong>看 <code>PostgresUnitOfWork.session()</code>：正常 commit，异常 rollback。</p><p><a href="https://docs.sqlalchemy.org/en/20/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="alembic">
+<div class="card-head"><span class="tech-badge">目标数据</span><h4>Alembic</h4></div>
+<p class="analogy">数据库结构的版本控制</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>Alembic 像数据库 schema 的 Git，把表结构变化写成迁移脚本，可重复升级到 head，避免手工改库。</p></section><section><h5>项目里承担什么</h5><p>PostgreSQL schema 的版本事实源在 migrations；Compose 先跑迁移，再启动 API。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>database/migrations/alembic.ini</code>：postgresql+psycopg 配置。</li><li><code>database/migrations/env.py</code>：迁移运行环境。</li><li><code>database/migrations/versions/20260914_0001_postgres_baseline_v6.py</code>：业务基线。</li><li><code>tests/migration/</code>：迁移测试。</li></ul></section>
+<footer><p><strong>学习提示：</strong>命令：<code>uv run alembic -c database/migrations/alembic.ini upgrade head</code>。</p><p><a href="https://alembic.sqlalchemy.org/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="postgresql">
+<div class="card-head"><span class="tech-badge">目标数据</span><h4>PostgreSQL 16</h4></div>
+<p class="analogy">真正的长期仓库</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>PostgreSQL 是关系型数据库，保存课题、工作流、成效卡、偏好、审计和 outbox 等状态。类比档案馆：应用重启后资料仍在。</p></section><section><h5>项目里承担什么</h5><p>目标运行时使用 PostgreSQL 16；<code>/readyz</code> 只有数据库和 Alembic 版本就绪才成功。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>docker-compose.yml</code>：db 服务和持久卷。</li><li><code>.env.example</code>、<code>config/environments/</code>：数据库 URL 模板。</li><li><code>database/migrations/</code>、<code>database/scripts/</code>、<code>adapters/persistence/</code>：结构、导入和访问。</li><li><code>tests/migration/</code>、<code>apps/api/tests/test_target_postgres_*.py</code>：验证。</li></ul></section>
+<footer><p><strong>学习提示：</strong>前端只通过 API 访问，浏览器不直接连库。</p><p><a href="https://www.postgresql.org/docs/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="psycopg">
+<div class="card-head"><span class="tech-badge">目标数据</span><h4>psycopg 3</h4></div>
+<p class="analogy">Python 与 PostgreSQL 的传话员</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>psycopg 是 PostgreSQL 驱动。SQLAlchemy 生成 SQL，但真正连接、传参、取结果的是 psycopg。</p></section><section><h5>项目里承担什么</h5><p>URL 使用 <code>postgresql+psycopg://...</code>，Engine 工厂显式拒绝其他连接串。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>adapters/persistence/session.py</code>：校验 URL 并创建 Engine。</li><li><code>pyproject.toml</code>：psycopg[binary] 依赖。</li><li><code>database/migrations/alembic.ini</code>：迁移使用 psycopg。</li></ul></section>
+<footer><p><strong>学习提示：</strong>看到 <code>postgresql+psycopg</code>，就知道目标数据链路。</p><p><a href="https://www.psycopg.org/psycopg3/docs/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="uvicorn">
+<div class="card-head"><span class="tech-badge">目标运行</span><h4>Uvicorn</h4></div>
+<p class="analogy">让 FastAPI 常驻运行的服务员</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>Uvicorn 是 ASGI 服务器，负责绑定端口、接收 HTTP 连接并把请求交给 FastAPI。</p></section><section><h5>项目里承担什么</h5><p>API 镜像默认用 uvicorn factory 启动；本地脚本也支持 FastAPI runtime。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>scripts/serve.py</code>：本地入口，支持 fastapi 与 reload。</li><li><code>Dockerfile.api</code>：生产镜像启动命令。</li><li><code>docker-compose.yml</code>：api 服务。</li></ul></section>
+<footer><p><strong>学习提示：</strong>开发期常见拓扑：Vite 5173 代理到后端 8765。</p><p><a href="https://www.uvicorn.org/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article></div>
+</section>
+<section class="level" id="frontend" aria-labelledby="frontend-title">
+<div class="section-head"><div><h2 id="frontend-title">前端与契约</h2><p class="lede">这一组技术负责“把状态变成可理解、可刷新、可恢复的界面”。</p></div></div>
+<div class="tech-list"><article class="tech-card" id="vue">
+<div class="card-head"><span class="tech-badge">目标前端</span><h4>Vue 3</h4></div>
+<p class="analogy">把数据变成页面的装配车间</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>Vue 是前端框架，将状态、模板和组件组合成浏览器页面。本项目使用 SFC 单文件组件。</p></section><section><h5>项目里承担什么</h5><p>页面通过 API service 取数，不直接连接数据库。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>apps/web/src/main.ts</code>、<code>App.vue</code>：入口和全局布局。</li><li><code>views/</code>：课题、工作台、删除页和 legacy bridge。</li><li><code>features/context-workbench/</code>：模型、service、query 和组件。</li><li><code>components/</code>、<code>styles.css</code>：复用界面和样式。</li></ul></section>
+<footer><p><strong>学习提示：</strong>先看 <code>main.ts</code>，再看 router，最后进入一个 view。</p><p><a href="https://vuejs.org/guide/introduction.html" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="typescript">
+<div class="card-head"><span class="tech-badge">目标前端</span><h4>TypeScript</h4></div>
+<p class="analogy">写代码前先量尺寸的尺子</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>TypeScript 在 JavaScript 上增加静态类型，在编译前发现拼错字段、传错参数等问题。</p></section><section><h5>项目里承担什么</h5><p>前端 strict 模式开启；API 类型从 OpenAPI 生成。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>apps/web/tsconfig.json</code>：strict 和 ES2022。</li><li><code>features/**/*-service.ts</code>、<code>*-types.ts</code>：类型与请求封装。</li><li><code>apps/web/tests/</code>：类型化测试。</li></ul></section>
+<footer><p><strong>学习提示：</strong>类型报错优先怀疑合同不一致，不用 any 绕过。</p><p><a href="https://www.typescriptlang.org/docs/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="vite">
+<div class="card-head"><span class="tech-badge">目标前端</span><h4>Vite 7</h4></div>
+<p class="analogy">开发热更新与生产打包机</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>Vite 提供开发服务器、热更新和生产打包；开发期只负责 5173 页面并把 API 代理到后端。</p></section><section><h5>项目里承担什么</h5><p><code>vite.config.ts</code> 同时配置 Vue 插件、代理、构建输出和 Vitest。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>apps/web/vite.config.ts</code>：<code>/_legacy</code>、<code>/api</code>、<code>/healthz</code> 代理到 8765。</li><li><code>apps/web/dist/</code>：生产产物。</li><li><code>Dockerfile.web</code>：Node 构建阶段。</li></ul></section>
+<footer><p><strong>学习提示：</strong>页面打不开时先确认后端 8765 是否可访问。</p><p><a href="https://vite.dev/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="vue-router">
+<div class="card-head"><span class="tech-badge">目标前端</span><h4>Vue Router 4</h4></div>
+<p class="analogy">URL 与页面的调度员</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>Vue Router 把 <code>/contexts</code>、<code>/contexts/:contextId</code> 等地址映射到组件，支持刷新、收藏和后退。</p></section><section><h5>项目里承担什么</h5><p>原生路由懒加载；通配路径进入 legacy bridge。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>apps/web/src/router/index.ts</code>：路由表和 fallback。</li><li><code>router/legacy-route.ts</code>：旧路径适配。</li><li><code>views/*.vue</code>：路由页面。</li></ul></section>
+<footer><p><strong>学习提示：</strong>URL 是状态的一部分，筛选和偏好要可刷新恢复。</p><p><a href="https://router.vuejs.org/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="tanstack-query">
+<div class="card-head"><span class="tech-badge">目标前端</span><h4>TanStack Vue Query 5</h4></div>
+<p class="analogy">前端数据的缓存和状态管家</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>TanStack Query 管理 loading、success、error、缓存、重试和失效，减少手写全局状态。</p></section><section><h5>项目里承担什么</h5><p>入口注册 VueQueryPlugin；feature 层使用 useQuery/useMutation。默认重试 1 次、staleTime 30 秒。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>main.ts</code>：QueryClient 配置。</li><li><code>features/catalog/use-catalog-query.ts</code>。</li><li><code>features/contexts/use-context-queries.ts</code>。</li><li><code>features/context-workbench/use-context-workbench-queries.ts</code>。</li></ul></section>
+<footer><p><strong>学习提示：</strong>mutation 后让相关 query 失效，再重新取数。</p><p><a href="https://tanstack.com/query/latest/docs/framework/vue/overview" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="element-plus">
+<div class="card-head"><span class="tech-badge">目标前端</span><h4>Element Plus</h4></div>
+<p class="analogy">成熟桌面组件零件库</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>Element Plus 提供表格、表单、按钮、弹窗、进度条等成套组件，减少重复造控件。</p></section><section><h5>项目里承担什么</h5><p>全局注册组件和中文 locale；业务页面使用表格、表单、提示和按钮。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>main.ts</code>、<code>App.vue</code>：注册和 ConfigProvider。</li><li><code>views/contexts.view.vue</code>、<code>context-delete.view.vue</code>、<code>work-packages.view.vue</code>。</li><li><code>features/context-workbench/components/</code>。</li></ul></section>
+<footer><p><strong>学习提示：</strong>组件是外壳；业务状态仍由 service/query/model 负责。</p><p><a href="https://element-plus.org/en-US/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="openapi">
+<div class="card-head"><span class="tech-badge">契约</span><h4>OpenAPI + openapi-typescript</h4></div>
+<p class="analogy">前后端共同的说明书</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>OpenAPI 是机器可读 API 合同；FastAPI 导出 JSON，openapi-typescript 生成前端类型，减少手写字段错误。</p></section><section><h5>项目里承担什么</h5><p>根 package 提供 generate/verify 脚本，CI 检查生成文件无未提交差异。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>packages/contracts/scienceresearch.openapi.json</code>。</li><li><code>packages/contracts/scienceresearch-api.ts</code>。</li><li><code>scripts/export_openapi.py</code>。</li><li><code>package.json</code> contracts 脚本。</li></ul></section>
+<footer><p><strong>学习提示：</strong>改 API 后运行生成并提交合同。</p><p><a href="https://learn.openapis.org/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article></div>
+</section>
+<section class="level" id="compat" aria-labelledby="compat-title">
+<div class="section-head"><div><h2 id="compat-title">迁移兼容栈</h2><p class="lede">它们的存在是为了保护旧路径和旧数据，不代表新功能的默认方向。</p></div></div>
+<div class="tech-list"><article class="tech-card" id="flask">
+<div class="card-head"><span class="tech-badge">迁移兼容</span><h4>Flask 3</h4></div>
+<p class="analogy">旧业务的临时办公楼</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>Flask 是旧系统 Web 框架。迁移期不是新功能首选，而是继续挂载尚未原生化的旧 API 和 DOM 兼容路径。</p></section><section><h5>项目里承担什么</h5><p>FastAPI 先匹配目标路由；未匹配路径通过 WSGIMiddleware 交给 Flask。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>flask_app.py</code>：旧 Flask 应用组合。</li><li><code>web.py</code>、<code>core.py</code>：旧 HTTP/业务与 SQLite 内核。</li><li><code>adapters/legacy/</code>、<code>legacy_service.py</code>：旧能力适配层。</li><li><code>main.py</code>：PathPreservingWSGIMiddleware 挂载 <code>/</code>。</li></ul></section>
+<footer><p><strong>学习提示：</strong>新功能优先 FastAPI canonical <code>/api/v1</code>。</p><p><a href="https://flask.palletsprojects.com/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="waitress">
+<div class="card-head"><span class="tech-badge">迁移兼容</span><h4>Waitress 3</h4></div>
+<p class="analogy">旧 Flask 的 WSGI 服务员</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>Waitress 是 Windows 友好的 WSGI 生产服务器，用于旧 Flask 回退运行时，不是目标 ASGI 主服务。</p></section><section><h5>项目里承担什么</h5><p><code>scripts/serve.py --runtime flask</code> 显式进入旧运行时。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>scripts/serve.py</code>：运行时选择和 waitress 导入。</li><li><code>apps/api/src/scienceresearch/__main__.py</code>：兼容 CLI。</li><li><code>pyproject.toml</code>：Transitional compatibility runtime 注释。</li></ul></section>
+<footer><p><strong>学习提示：</strong>排障先确认当前是 FastAPI 还是 Flask runtime。</p><p><a href="https://docs.pylonsproject.org/projects/waitress/en/stable/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="sqlite">
+<div class="card-head"><span class="tech-badge">迁移兼容</span><h4>SQLite / sqlite3</h4></div>
+<p class="analogy">一个文件就是一个小数据库</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>SQLite 是嵌入式数据库，一个 <code>.db</code> 文件即可存数据。本项目用于旧业务和受控种子库，迁移脚本只读检查后可导入空 PostgreSQL。</p></section><section><h5>项目里承担什么</h5><p>兼容层读取 SQLite；目标迁移不直接改写 SQLite 正式数据。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>database/seeds/scienceresearch-v0.1.2/</code>：受控种子库。</li><li><code>storage/runtime/</code>：本地运行数据与 artifacts。</li><li><code>database/scripts/inspect_sqlite_source.py</code>、<code>import_sqlite_to_postgres.py</code>：检查与导入。</li><li><code>core.py</code>：sqlite3 连接和旧业务。</li></ul></section>
+<footer><p><strong>学习提示：</strong>导入脚本校验行数和哈希，不覆盖非空目标。</p><p><a href="https://www.sqlite.org/docs.html" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article></div>
+<div class="callout warn"><strong>边界提醒：</strong><code>apps/worker/</code> 当前为空，不写 Worker 技术；<code>output/</code> 是隔离证据；<code>storage/runtime/</code> 是运行数据，不是源码归属。</div>
+</section>
+<section class="level" id="quality" aria-labelledby="quality-title">
+<div class="section-head"><div><h2 id="quality-title">测试与质量</h2><p class="lede">质量工具把“看起来没问题”变成可重复证据。</p></div></div>
+<div class="tech-list"><article class="tech-card" id="github-actions">
+<div class="card-head"><span class="tech-badge">质量门禁</span><h4>GitHub Actions</h4></div>
+<p class="analogy">无人值守的验收机器人</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>GitHub Actions 在 push/pull request 时执行依赖锁定、静态检查、单测、契约、构建、E2E 和 Compose 配置检查。</p></section><section><h5>项目里承担什么</h5><p>CI 拆成 backend-quality、backend-tests、frontend-quality、frontend-e2e、deployment-config。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>.github/workflows/ci.yml</code>。</li><li><code>pyproject.toml</code>、<code>package.json</code>：命令来源。</li><li><code>docker-compose.yml</code>：配置检查对象。</li></ul></section>
+<footer><p><strong>学习提示：</strong>CI 通过不等于用户正式验收。</p><p><a href="https://docs.github.com/actions" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="ruff">
+<div class="card-head"><span class="tech-badge">质量门禁</span><h4>Ruff</h4></div>
+<p class="analogy">Python 代码的格式和卫生检查员</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>Ruff 检查格式、导入排序、常见错误和现代化写法，保持代码风格稳定。</p></section><section><h5>项目里承担什么</h5><p>配置限定目标栈文件；冻结迁移文件暂不纳入主检查。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>pyproject.toml</code> <code>[tool.ruff]</code>。</li><li>CI 的 format --check 与 check。</li></ul></section>
+<footer><p><strong>学习提示：</strong>先修复问题，不随意扩大忽略范围。</p><p><a href="https://docs.astral.sh/ruff/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="mypy">
+<div class="card-head"><span class="tech-badge">质量门禁</span><h4>mypy</h4></div>
+<p class="analogy">Python 类型的第二双眼睛</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>mypy 检查类型标注是否自洽，在运行前发现参数、返回值和可空值错误。</p></section><section><h5>项目里承担什么</h5><p>开启 disallow_untyped_defs 和 Pydantic 插件；冻结迁移文件有显式例外。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>pyproject.toml</code> <code>[tool.mypy]</code> 与 overrides。</li><li>CI 的 <code>uv run mypy</code>。</li></ul></section>
+<footer><p><strong>学习提示：</strong>类型异常可能提示架构边界泄漏。</p><p><a href="https://mypy.readthedocs.io/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="pytest">
+<div class="card-head"><span class="tech-badge">质量门禁</span><h4>pytest</h4></div>
+<p class="analogy">Python 测试的组织者</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>pytest 自动发现并运行测试，支持参数化、fixture 和清晰失败输出；覆盖 API、仓储、迁移、契约和链路。</p></section><section><h5>项目里承担什么</h5><p>pyproject 配置 testpaths/pythonpath，使测试能导入 apps/api/src。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>apps/api/tests/</code>。</li><li><code>tests/contract/</code>、<code>tests/migration/</code>、<code>tests/e2e/</code>。</li><li><code>pytest.ini</code>、<code>pyproject.toml</code>。</li></ul></section>
+<footer><p><strong>学习提示：</strong>测试名描述行为和条件。</p><p><a href="https://docs.pytest.org/en/stable/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="httpx">
+<div class="card-head"><span class="tech-badge">质量门禁</span><h4>HTTPX</h4></div>
+<p class="analogy">测试里的 HTTP 客户端</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>HTTPX 让 Python 测试直接调用 ASGI/HTTP 接口，检查状态码、JSON、错误合同和权限行为。</p></section><section><h5>项目里承担什么</h5><p>目标 API 测试使用 HTTPX，不需要手工启动服务器。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>pyproject.toml</code> dev 依赖。</li><li><code>apps/api/tests/test_target_*.py</code>。</li></ul></section>
+<footer><p><strong>学习提示：</strong>HTTP 200 不是唯一判断，还要看持久化与错误。</p><p><a href="https://www.python-httpx.org/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="vitest">
+<div class="card-head"><span class="tech-badge">质量门禁</span><h4>Vitest + jsdom + Vue Test Utils</h4></div>
+<p class="analogy">前端组件试验台</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>Vitest 运行前端测试；jsdom 提供浏览器式 DOM；Vue Test Utils 挂载组件并触发交互。</p></section><section><h5>项目里承担什么</h5><p>vite.config 定义测试环境、setup、mock 恢复和排除 E2E。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>apps/web/tests/*.spec.ts</code>。</li><li><code>apps/web/tests/setup.ts</code>。</li><li><code>apps/web/vite.config.ts</code>。</li></ul></section>
+<footer><p><strong>学习提示：</strong>组件测试关注用户可见结果。</p><p><a href="https://vitest.dev/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="vue-tsc">
+<div class="card-head"><span class="tech-badge">质量门禁</span><h4>vue-tsc</h4></div>
+<p class="analogy">能读懂 .vue 的 TypeScript 检查器</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>TypeScript 不原生解析 SFC，vue-tsc 专门检查 template、script 和类型一致性。</p></section><section><h5>项目里承担什么</h5><p><code>npm run check</code> 调用 <code>vue-tsc --noEmit</code>。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>apps/web/package.json</code>。</li><li><code>apps/web/tsconfig.json</code>。</li><li>根 <code>package.json</code> 与 CI。</li></ul></section>
+<footer><p><strong>学习提示：</strong>类型检查和 Vitest 互补。</p><p><a href="https://vuejs.org/guide/scaling-up/tooling.html" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="playwright">
+<div class="card-head"><span class="tech-badge">质量门禁</span><h4>Playwright</h4></div>
+<p class="analogy">会点页面的真人替身</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>Playwright 驱动真实浏览器执行 E2E：打开、点击、输入、等待、截图和记录 trace。</p></section><section><h5>项目里承担什么</h5><p>自动启动/清理 Vite，Chromium 为主项目。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>apps/web/playwright.config.ts</code>。</li><li><code>apps/web/tests/e2e/</code>。</li><li><code>output/playwright/<run-id>/</code>。</li></ul></section>
+<footer><p><strong>学习提示：</strong>浏览器通过不覆盖所有真实数据组合。</p><p><a href="https://playwright.dev/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article></div>
+</section>
+<section class="level" id="deploy" aria-labelledby="deploy-title">
+<div class="section-head"><div><h2 id="deploy-title">构建部署与治理</h2><p class="lede">这一组技术解决“如何稳定安装、打包、启动、检查和追溯”。</p></div></div>
+<div class="tech-list"><article class="tech-card" id="uv">
+<div class="card-head"><span class="tech-badge">工程工具</span><h4>uv + setuptools</h4></div>
+<p class="analogy">Python 依赖的锁和钥匙</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>uv 根据 pyproject 安装依赖并生成/校验 uv.lock，保证各机器使用同一组 Python 包；setuptools 负责包构建配置。</p></section><section><h5>项目里承担什么</h5><p>CI、Dockerfile 和 README 使用 <code>uv sync --locked</code>。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>pyproject.toml</code>。</li><li><code>uv.lock</code>。</li><li><code>Dockerfile.api</code>、<code>.github/workflows/ci.yml</code>。</li></ul></section>
+<footer><p><strong>学习提示：</strong>命令：<code>uv sync --locked --python 3.12</code>。</p><p><a href="https://docs.astral.sh/uv/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="node-npm">
+<div class="card-head"><span class="tech-badge">工程工具</span><h4>Node.js 24 + npm workspaces</h4></div>
+<p class="analogy">前端工具链的发动机和仓库</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>Node.js 运行 Vite、TypeScript、Vitest 和 Playwright；npm workspace 管理根包与 apps/web 的依赖脚本。</p></section><section><h5>项目里承担什么</h5><p>根 package 聚合 dev/build/check/test/e2e/contracts 命令。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>package.json</code>、<code>package-lock.json</code>。</li><li><code>apps/web/package.json</code>。</li><li><code>Dockerfile.web</code>、CI。</li></ul></section>
+<footer><p><strong>学习提示：</strong>命令：<code>npm.cmd ci</code>、<code>npm.cmd run check</code>。</p><p><a href="https://docs.npmjs.com/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="docker">
+<div class="card-head"><span class="tech-badge">部署运行</span><h4>Docker</h4></div>
+<p class="analogy">把运行环境装进集装箱</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>Docker 将 Python 依赖、源码、Node 构建和 Nginx 配置打包为镜像，减少本机环境影响。</p></section><section><h5>项目里承担什么</h5><p>API 与 Web 使用两个 Dockerfile；Web 先在 Node 阶段构建，再复制到 Nginx。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>Dockerfile.api</code>：uv + Python 3.12 + Uvicorn。</li><li><code>Dockerfile.web</code>：Node 24 build + Nginx 1.27。</li><li><code>docker-compose.yml</code>。</li></ul></section>
+<footer><p><strong>学习提示：</strong>镜像不写入正式数据或秘密。</p><p><a href="https://docs.docker.com/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="compose">
+<div class="card-head"><span class="tech-badge">部署运行</span><h4>Docker Compose</h4></div>
+<p class="analogy">一键启动完整剧组</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>Compose 定义 PostgreSQL、一次性 Alembic 迁移、FastAPI API 和 Nginx Web，并管理依赖和健康检查。</p></section><section><h5>项目里承担什么</h5><p>启动顺序为 db 健康 → migrate 成功 → api 健康 → web。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>docker-compose.yml</code>：db/migrate/api/web 与卷。</li><li><code>tests/contract/test_deployment_config.py</code>。</li><li><code>scripts/deploy_target_stack.ps1</code>。</li></ul></section>
+<footer><p><strong>学习提示：</strong>本地只创建隔离卷，不导入正式数据。</p><p><a href="https://docs.docker.com/compose/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="nginx">
+<div class="card-head"><span class="tech-badge">部署运行</span><h4>Nginx 1.27</h4></div>
+<p class="analogy">门卫、静态文件架和转发台</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>Nginx 生产环境托管 Vue 静态文件，并把 API、legacy、健康检查和文档路径代理到 FastAPI。</p></section><section><h5>项目里承担什么</h5><p>SPA 回退 index.html，但 API 路径显式代理。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>config/nginx/scienceresearch.conf</code>。</li><li><code>Dockerfile.web</code>。</li><li><code>docker-compose.yml</code> web 服务。</li></ul></section>
+<footer><p><strong>学习提示：</strong>注意 100m 上传大小和代理超时配置。</p><p><a href="https://nginx.org/en/docs/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="powershell">
+<div class="card-head"><span class="tech-badge">部署工具</span><h4>PowerShell 部署脚本</h4></div>
+<p class="analogy">Windows 本地的一键导演</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>PowerShell 封装构建、启动、健康检查、状态查询和停止，适合本机隔离部署演练。</p></section><section><h5>项目里承担什么</h5><p>默认 Compose；显式 local-isolated 才使用本机 PostgreSQL/API/Nginx。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>scripts/deploy_target_stack.ps1</code>。</li><li><code>docs/operations/20260915-目标栈一键部署运行脚本-API说明.md</code>。</li><li><code>tests/contract/test_target_stack_deployment_script.py</code>。</li></ul></section>
+<footer><p><strong>学习提示：</strong>先阅读参数和退出码。</p><p><a href="https://learn.microsoft.com/powershell/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article>
+<article class="tech-card" id="governance">
+<div class="card-head"><span class="tech-badge">治理工具</span><h4>YAML 注册表 + F001/F002</h4></div>
+<p class="analogy">项目导航台和检查关卡</p>
+<div class="tech-grid"><section><h5>它是什么，干什么</h5><p>YAML 登记功能、路径、测试和 Skill 晋升链路；F001/F002 是只读治理校验器。</p></section><section><h5>项目里承担什么</h5><p>工程变更前后运行 F001；Skill 全局晋升前运行 F002。</p></section></div>
+<section class="implementation"><h5>在对应文件夹中怎么实现</h5><ul><li><code>config/feature-registry.yaml</code>。</li><li><code>config/skill-promotion.yaml</code>。</li><li><code>scripts/f001_governance_validate.py</code>、<code>f002_skill_promotion_audit.py</code>。</li></ul></section>
+<footer><p><strong>学习提示：</strong>F001 通过不等于业务验收。</p><p><a href="https://yaml.org/" target="_blank" rel="noopener noreferrer">官方文档</a></p></footer>
+</article></div>
+</section>
+<section class="level" id="folders" aria-labelledby="folders-title">
+<div class="section-head"><div><h2 id="folders-title">按文件夹找代码</h2><p class="lede">忘记某项技术时，可以按目录反查它的责任。</p></div></div>
+<div class="table-scroll"><table><caption>项目文件夹速查表</caption>
+<thead><tr><th scope="col">文件夹 / 文件</th><th scope="col">主要技术</th><th scope="col">你要找什么</th></tr></thead><tbody>
+<tr><td><code>apps/api/src/scienceresearch/api/</code></td><td>FastAPI、Pydantic</td><td>路由、DTO、错误映射。</td></tr>
+<tr><td><code>apps/api/src/scienceresearch/application/</code></td><td>Python</td><td>用例编排和事务边界。</td></tr>
+<tr><td><code>apps/api/src/scienceresearch/domain/</code></td><td>Python</td><td>框架无关业务规则和错误。</td></tr>
+<tr><td><code>apps/api/src/scienceresearch/adapters/persistence/</code></td><td>SQLAlchemy、psycopg</td><td>ORM、Session、Repository。</td></tr>
+<tr><td><code>flask_app.py</code>、<code>core.py</code>、<code>web.py</code></td><td>Flask、SQLite</td><td>旧运行时和兼容桥。</td></tr>
+<tr><td><code>apps/web/src/</code></td><td>Vue、TypeScript、TanStack Query、Element Plus</td><td>页面、service、query、组件。</td></tr>
+<tr><td><code>apps/web/tests/</code></td><td>Vitest、Playwright</td><td>组件测试和浏览器 E2E。</td></tr>
+<tr><td><code>database/</code></td><td>Alembic、PostgreSQL、SQLite 迁移</td><td>schema、版本、种子和导入脚本。</td></tr>
+<tr><td><code>packages/contracts/</code></td><td>OpenAPI、TypeScript</td><td>前后端合同。</td></tr>
+<tr><td><code>config/</code></td><td>Nginx、YAML、环境模板</td><td>反向代理、功能登记、环境示例。</td></tr>
+<tr><td><code>.github/workflows/</code></td><td>GitHub Actions</td><td>CI 命令和矩阵。</td></tr>
+<tr><td><code>output/</code></td><td>Playwright、部署、浏览器证据</td><td>隔离运行产物，不是正式数据。</td></tr>
+</tbody></table></div>
+</section>
+<section class="level panel" id="faq" aria-labelledby="faq-title">
+<div class="section-head"><div><h2 id="faq-title">常见问题</h2><p class="lede">这些答案不追求百科式完整，只帮助你在本项目里做判断。</p></div></div>
+<div class="faq">
+<details><summary>为什么同时有 FastAPI 和 Flask？</summary><p>这是渐进迁移策略：FastAPI 承接目标 API 和新功能，Flask 保留旧路径避免迁移窗口功能失效。目标路由优先，未匹配路径才进入兼容桥。</p></details>
+<details><summary>为什么路由里不直接写 SQL？</summary><p>路由负责协议转换；业务在 application/domain，数据访问在 persistence adapter。这样 API、事务和数据结构可以分别测试和演化。</p></details>
+<details><summary>前端为什么不能直接连数据库？</summary><p>浏览器暴露数据库凭据且难以统一权限、事务、审计和错误处理。前端只调用同源 JSON API。</p></details>
+<details><summary>单测通过为什么还要 Playwright？</summary><p>单测证明函数/组件正确；Playwright 证明真实浏览器里的路由、请求、DOM、Console 和用户路径可见结果正确。</p></details>
+<details><summary>为什么有 npm 和 uv 两套依赖工具？</summary><p>JavaScript/Node 生态用 npm workspace，Python 生态用 uv。两者分别锁文件，保证前后端工具链可复现。</p></details>
+<details><summary>技术栈文档等于发布批准吗？</summary><p>不等于。本文只说明仓库事实和实现方式；发布、正式验收和正式数据迁移需要用户明确授权与独立记录。</p></details>
+</div>
+</section>
+<section class="level" id="research" aria-labelledby="research-title">
+<div class="section-head"><div><h2 id="research-title">在线 Skill 调研与写法来源</h2><p class="lede">按用户要求，本轮只读调研公开 Skill 和指南，没有安装、晋升或执行外部 Skill。</p></div></div>
+<div class="source-grid">
+<article class="source-card"><strong><a href="https://skills.sh/anthropics/knowledge-work-plugins/documentation" target="_blank" rel="noopener noreferrer">anthropics/knowledge-work-plugins@documentation</a></strong><p>9.4K 安装。采纳“面向读者、先给最有用信息、展示例子、保持当前、链接不复制”的技术文档原则。其架构文档结构启发了“目标—结构—实现—证据”的讲解方式。</p></article>
+<article class="source-card"><strong><a href="https://skills.sh/wondelai/skills/technical-documentation" target="_blank" rel="noopener noreferrer">wondelai/skills@technical-documentation</a></strong><p>415 安装。采纳“从读者任务出发、所有事实必须能回到代码验证”的原则；本文每个技术均给出项目路径或配置来源。</p></article>
+<article class="source-card"><strong><a href="https://skills.sh/vercel-labs/agent-skills/web-design-guidelines" target="_blank" rel="noopener noreferrer">vercel-labs/agent-skills@web-design-guidelines</a></strong><p>635.8K 安装。参考 Vercel Web Interface Guidelines：语义 HTML、可见焦点、键盘可达、表格可读、长词换行、响应式、减少动画和可访问导航。</p></article>
+</div>
+<div class="callout"><strong>版式参考：</strong>页面布局参考用户指定的 <a href="https://docs.bigmodel.cn/cn/coding-plan/notice/event-glm-5.3-flash" target="_blank" rel="noopener noreferrer">智谱 AI 开放文档公告页</a>（Mintlify 风格）：顶部品牌栏、面包屑、清晰标题、摘要、正文、表格和侧边目录。本页不复制智谱品牌色、Logo、文案、插画或任何专属视觉资产。</div>
+</section>
+</article></main>
+<aside class="toc" aria-label="本节快速导航"><h2>快速定位</h2><ul><li><a href="#start">开始阅读</a></li>
+<li><a href="#request">一条请求的旅程</a></li>
+<li><a href="#map">学习地图</a></li>
+<li><a href="#backend">后端与数据</a></li>
+<li><a href="#frontend">前端与契约</a></li>
+<li><a href="#compat">迁移兼容栈</a></li>
+<li><a href="#quality">测试与质量</a></li>
+<li><a href="#deploy">构建部署与治理</a></li>
+<li><a href="#folders">按文件夹找代码</a></li>
+<li><a href="#faq">常见问题</a></li>
+<li><a href="#research">在线 Skill 调研</a></li></ul></aside>
+</div>
+<footer class="page-footer"><div class="footer-inner"><p>ScienceResearch 工程架构教学手册 · 2026-09-15 · 路径均相对仓库根。</p><p><a href="#main">回到顶部</a></p></div></footer>
+</body></html>

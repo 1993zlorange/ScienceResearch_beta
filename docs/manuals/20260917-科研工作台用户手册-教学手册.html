@@ -1,0 +1,882 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>科研工作台教学手册（20260917）</title>
+<meta name="description" content="科研工作台用户手册的通俗教学 HTML：安装启动、页面操作、课题执行、报告产出、功能边界和常见故障。">
+<style>
+:root{color-scheme:light;--bg:#f4f7fb;--panel:#fff;--soft:#f7f9fc;--ink:#172033;--muted:#5b6578;--line:#dbe3ef;--brand:#0b6bcb;--brand-ink:#08518f;--brand-soft:#e8f3ff;--green:#0a7443;--green-soft:#e8f7ef;--red:#a4262c;--red-soft:#fdeeee;--radius:14px;--shadow:0 1px 2px rgba(23,32,51,.05),0 10px 28px rgba(23,32,51,.06)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI","Microsoft YaHei",system-ui,-apple-system,sans-serif;line-height:1.72;font-size:16px}a{color:var(--brand);text-decoration:none}a:hover{color:var(--brand-ink);text-decoration:underline}:focus-visible{outline:3px solid #75a8ff;outline-offset:3px;border-radius:6px}.skip{position:absolute;left:-9999px}.skip:focus{left:16px;top:12px;z-index:100;padding:10px 14px;background:#fff;border:1px solid var(--line);border-radius:8px}
+.topbar{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}.topbar-inner{max-width:1440px;margin:auto;padding:12px 28px;display:flex;align-items:center;gap:18px}.brand{display:flex;align-items:center;gap:10px;font-weight:750;color:var(--ink)}.mark{width:32px;height:32px;border-radius:9px;background:var(--brand);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:800}.topnav{margin-left:auto;display:flex;gap:16px;font-size:14px}
+.layout{max-width:1440px;margin:auto;display:grid;grid-template-columns:290px minmax(0,1fr);gap:30px;padding:32px 28px 90px}.sidebar{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 102px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}.sidebar h2{font-size:14px;margin:0 0 10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.toc{list-style:none;margin:0;padding:0;font-size:14px}.toc li+li{border-top:1px solid #edf1f7}.toc a{display:block;padding:9px 8px;border-radius:8px;color:var(--ink)}.toc a:hover{background:var(--brand-soft);color:var(--brand-ink);text-decoration:none}.toc-l3{padding-left:24px;font-size:13px;color:var(--muted)}.sidebar-note{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+main{min-width:0}.hero{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:36px}.breadcrumb{display:flex;gap:8px;font-size:13px;color:var(--muted);margin-bottom:16px}.eyebrow{display:inline-block;padding:5px 10px;border-radius:999px;background:var(--brand-soft);color:var(--brand-ink);font-size:12px;font-weight:700;margin:0 0 16px}h1{font-size:clamp(30px,4vw,45px);line-height:1.18;margin:0;letter-spacing:-.03em;text-wrap:balance}.subtitle{max-width:820px;color:var(--muted);font-size:17px;margin:16px 0 0}.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;font-size:13px}.meta span{padding:6px 10px;background:var(--soft);border:1px solid var(--line);border-radius:8px}
+.guide,.route{margin-top:30px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px}.guide h2,.route h2{margin:0 0 16px;font-size:24px;letter-spacing:-.02em}.guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}.guide-grid article{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:18px}.guide-grid h3{margin:0 0 8px;font-size:16px}.guide-grid p{margin:0;color:var(--muted)}.callout{margin-top:18px;padding:16px 18px;border-left:4px solid var(--brand);background:var(--brand-soft);border-radius:0 12px 12px 0}.callout.safe{border-color:var(--green);background:var(--green-soft)}
+.route-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;list-style:none;margin:0;padding:0;counter-reset:route}.route-grid li{counter-increment:route}.route-grid a{display:block;height:100%;padding:16px;background:var(--soft);border:1px solid var(--line);border-radius:12px;color:var(--ink)}.route-grid a:hover{background:var(--brand-soft);text-decoration:none}.route-grid strong{display:block;margin-bottom:5px}.route-grid strong::before{content:counter(route) ". ";color:var(--brand)}.route-grid span{font-size:14px;color:var(--muted)}
+.chapter{margin-top:28px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;scroll-margin-top:88px}.chapter h2{margin:0 0 18px;font-size:clamp(22px,2.5vw,30px);line-height:1.25;letter-spacing:-.02em;text-wrap:balance}h3{margin:26px 0 10px;font-size:18px;letter-spacing:-.01em;scroll-margin-top:88px}h4{margin:20px 0 8px;font-size:16px}p{margin:0 0 12px}ul,ol{padding-left:24px;margin:0 0 14px}li+li{margin-top:5px}blockquote{margin:14px 0;padding:14px 18px;border-left:4px solid var(--line);background:var(--soft);color:var(--muted)}code{font-family:Consolas,"Cascadia Mono",monospace;font-size:.92em;background:#eef2f8;padding:2px 5px;border-radius:5px;overflow-wrap:anywhere}pre{margin:12px 0 16px;padding:16px;background:#101828;color:#e7edf7;border-radius:10px;overflow:auto;font-size:13px;line-height:1.6}pre code{background:transparent;padding:0;color:inherit}
+table{width:100%;border-collapse:collapse;font-size:14px;background:#fff;border:1px solid var(--line)}caption{text-align:left;font-weight:700;padding:10px 0}th,td{padding:11px 13px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#eef3fa;color:#37455d}tr:last-child td{border-bottom:0}.chapter>table{display:block;overflow-x:auto}
+.evidence-gap{margin:14px 0;padding:16px;border:1px dashed #d3a1a4;border-left:4px solid var(--red);background:var(--red-soft);border-radius:0 10px 10px 0}.evidence-gap strong{display:block;margin-bottom:5px;color:var(--red)}.evidence-gap span{display:block;font-size:14px;color:#6c3134}.evidence-gap code{display:inline-block;margin:7px 0;background:#fff;color:var(--ink)}
+.page-footer{border-top:1px solid var(--line);background:#fff}.footer-inner{max-width:1440px;margin:auto;padding:24px 28px;display:flex;justify-content:space-between;gap:18px;color:var(--muted);font-size:13px;flex-wrap:wrap}
+@media(max-width:1180px){.layout{grid-template-columns:250px minmax(0,1fr);gap:22px}}
+@media(max-width:840px){.layout{display:block;padding:20px 16px 70px}.topbar-inner{padding:12px 16px}.topnav{display:none}.sidebar{position:static;max-height:none;margin-bottom:20px}.toc a{padding:12px 10px}.hero,.guide,.route{padding:20px;border-radius:12px}.chapter{padding:20px;border-radius:12px}}
+@media(max-width:520px){h1{font-size:29px}.guide-grid,.route-grid{display:block}.guide-grid article+article,.route-grid li+li{margin-top:10px}.meta{display:block}.meta span{display:inline-block;margin-bottom:6px}}
+@media print{.topbar,.sidebar,.skip{display:none}body{background:#fff}.layout{display:block;max-width:none;padding:0}.hero,.guide,.route,.chapter{box-shadow:none;break-inside:avoid;margin-top:16px}.evidence-gap{break-inside:avoid}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+figure.evidence{margin:16px 0;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--soft);overflow:hidden}
+figure.evidence img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+figure.evidence figcaption{margin-top:9px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要内容</a>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="#main"><span class="mark" aria-hidden="true">SR</span>科研工作台教学手册</a><nav class="topnav" aria-label="页面导航"><a href="#howto-title">怎么用</a><a href="#route-title">学习路线</a><a href="#ch-13">常见问题</a><a href="#ch-15">验收建议</a></nav></div></header>
+<div class="layout"><aside class="sidebar" aria-label="手册目录"><h2>目录</h2><ul class="toc"><li><a class="toc-l2" href="#ch-01">1. 文档说明</a></li>
+<li><a class="toc-l3" href="#sec-001">1.1 编写目的</a></li>
+<li><a class="toc-l3" href="#sec-002">1.2 适用范围</a></li>
+<li><a class="toc-l3" href="#sec-003">1.3 当前版本状态</a></li>
+<li><a class="toc-l2" href="#ch-02">2. 系统说明</a></li>
+<li><a class="toc-l3" href="#sec-004">2.1 系统用途</a></li>
+<li><a class="toc-l3" href="#sec-005">2.2 系统组成</a></li>
+<li><a class="toc-l3" href="#sec-006">2.3 数据目录</a></li>
+<li><a class="toc-l2" href="#ch-03">3. 安装与启动</a></li>
+<li><a class="toc-l3" href="#sec-007">3.1 环境要求</a></li>
+<li><a class="toc-l3" href="#sec-008">3.2 Python 直接启动（推荐）</a></li>
+<li><a class="toc-l3" href="#sec-009">3.3 PowerShell 启动</a></li>
+<li><a class="toc-l3" href="#sec-010">3.4 停止服务</a></li>
+<li><a class="toc-l3" href="#sec-011">3.5 端口占用</a></li>
+<li><a class="toc-l2" href="#ch-04">4. 首页和导航</a></li>
+<li><a class="toc-l3" href="#sec-20260917-technical">4.4 技术说明板块</a></li><li><a class="toc-l2" href="#ch-05">5. 工作包目录</a></li>
+<li><a class="toc-l3" href="#sec-012">5.1 搜索和筛选</a></li>
+<li><a class="toc-l3" href="#sec-013">5.2 查看工作包详情</a></li>
+<li><a class="toc-l3" href="#sec-20260917-inline">5.3 工作包内成效卡</a></li><li><a class="toc-l2" href="#ch-06">6. 创建课题与流程</a></li>
+<li><a class="toc-l3" href="#sec-014">6.1 创建研究上下文</a></li>
+<li><a class="toc-l3" href="#sec-015">6.2 从工作包启动 Workflow</a></li>
+<li><a class="toc-l3" href="#sec-20260917-workflows">6.3 12 工作流视图</a></li><li><a class="toc-l2" href="#ch-07">7. 周计划和执行台</a></li>
+<li><a class="toc-l3" href="#sec-016">7.1 创建周记录</a></li>
+<li><a class="toc-l3" href="#sec-017">7.2 添加工作项</a></li>
+<li><a class="toc-l3" href="#sec-018">7.3 记录执行</a></li>
+<li><a class="toc-l3" href="#sec-019">7.4 登记证据</a></li>
+<li><a class="toc-l3" href="#sec-020">7.5 完成门和完成操作</a></li>
+<li><a class="toc-l2" href="#ch-08">8. 建议、报告与成效卡</a></li>
+<li><a class="toc-l3" href="#sec-021">8.1 生成下一步建议</a></li>
+<li><a class="toc-l3" href="#sec-022">8.2 生成周报</a></li>
+<li><a class="toc-l3" href="#sec-023">8.3 生成成效卡和 PPTX</a></li>
+<li><a class="toc-l2" href="#ch-09">9. Skill 注册和运行</a></li>
+<li><a class="toc-l3" href="#sec-024">9.1 注册 Manifest</a></li>
+<li><a class="toc-l3" href="#sec-025">9.2 计划、审批、执行和取消</a></li>
+<li><a class="toc-l2" href="#ch-10">10. 治理、日志和运维</a></li>
+<li><a class="toc-l3" href="#sec-026">10.1 需求和工程事件</a></li>
+<li><a class="toc-l3" href="#sec-027">10.2 双 Agent 文档更新</a></li>
+<li><a class="toc-l3" href="#sec-028">10.3 项目工作日志读取</a></li>
+<li><a class="toc-l3" href="#sec-029">10.4 健康检查、备份和恢复</a></li>
+<li><a class="toc-l2" href="#ch-11">11. CLI 和 API 快速参考</a></li>
+<li><a class="toc-l3" href="#sec-030">11.1 CLI 主命令</a></li>
+<li><a class="toc-l3" href="#sec-031">11.2 当前 Web API</a></li>
+<li><a class="toc-l2" href="#ch-12">12. 与需求文档逐项核对</a></li>
+<li><a class="toc-l3" href="#sec-032">12.1 当前已验证功能</a></li>
+<li><a class="toc-l3" href="#sec-033">12.2 不应误认为已实现的功能</a></li>
+<li><a class="toc-l2" href="#ch-13">13. 常见问题</a></li>
+<li><a class="toc-l3" href="#sec-034">13.1 启动后窗口没有输出</a></li>
+<li><a class="toc-l3" href="#sec-035">13.2 浏览器打开的是 JSON</a></li>
+<li><a class="toc-l3" href="#sec-036">13.3 页面仍是旧版</a></li>
+<li><a class="toc-l3" href="#sec-037">13.4 新建第二个周工作项失败</a></li>
+<li><a class="toc-l3" href="#sec-038">13.5 证据路径被拒绝</a></li>
+<li><a class="toc-l3" href="#sec-039">13.6 完成操作被拒绝</a></li>
+<li><a class="toc-l2" href="#ch-14">14. 运维配置中心（E9/E10）</a></li>
+<li><a class="toc-l3" href="#sec-040">14.1 单一配置文件</a></li>
+<li><a class="toc-l3" href="#sec-041">14.2 业务数据目录</a></li>
+<li><a class="toc-l3" href="#sec-042">14.3 成效卡附件规则</a></li>
+<li><a class="toc-l3" href="#sec-043">14.4 OpenAI 兼容模型</a></li>
+<li><a class="toc-l2" href="#ch-15">15. 版本、备份和支持信息</a></li>
+<li><a class="toc-l2" href="#ch-16">16. 用户验收建议</a></li>
+<li><a class="toc-l2" href="#sec-044">本轮 R1-A 状态同步（2026-08-29）</a></li>
+<li><a class="toc-l2" href="#sec-045">首页主工作台（当前实现）</a></li>
+<li><a class="toc-l3" href="#sec-046">下一步建议语义</a></li>
+<li><a class="toc-l3" href="#sec-047">文档治理候选</a></li>
+<li><a class="toc-l2" href="#sec-048">20260830 成效卡与工作包完成</a></li>
+<li><a class="toc-l3" href="#sec-049">20260831 v2/v3/v4 实现状态补充</a></li>
+<li><a class="toc-l3" href="#sec-050">Schema v4 迁移与只读状态补充说明</a></li></ul><p class="sidebar-note">本页是教学呈现；Markdown 手册仍是内容事实源。缺失截图均明确标记。</p></aside><main id="main">
+<div class="hero" id="start">
+  <nav class="breadcrumb" aria-label="面包屑">Markdown 事实源<span>/</span><span>HTML 教学手册</span></nav>
+  <p class="eyebrow">面向新用户 · 可离线阅读 · 保留功能边界</p>
+  <h1>科研工作台教学手册</h1>
+  <p class="subtitle">这门手册把安装启动、页面操作、课题执行、报告产出和常见故障整理成一条可以跟着做的学习路线。它基于 <strong>20260828 手册结构、20260917 已批准 PRD/SRS/SDD 和当前目标栈实现</strong>，不把未实现能力说成现成功能。</p>
+  <div class="meta"><span>教学页日期：2026-09-17</span><span>适用：Windows 10/11 + Python 3.12</span><span>默认地址：http://127.0.0.1:8765/</span><span>状态：教学呈现，不是正式验收</span></div>
+</div>
+<section class="guide" aria-labelledby="howto-title">
+  <h2 id="howto-title">先看这里：这门手册怎么用</h2>
+  <div class="guide-grid">
+    <article><h3>第一次使用</h3><p>按“准备环境 → 启动服务 → 认识首页 → 创建课题 → 周执行 → 产出报告”的顺序读。不要跳过数据目录和完成门规则。</p></article>
+    <article><h3>遇到具体问题</h3><p>直接进入“常见问题”和对应功能章节。每个操作都要核对页面可见结果、持久化结果和错误提示。</p></article>
+    <article><h3>评估功能边界</h3><p>第 1、12、15、16 章说明哪些能力已实现、哪些仍需 API/CLI、哪些需要人工确认。不要把教学页当作验收证书。</p></article>
+  </div>
+  <div class="callout safe"><strong>关键红线：</strong>不直接修改 SQLite；不在网页填写绝对路径；证据必须位于 <code>data/artifacts/</code> 相对路径内；Skill 高风险动作必须批准；正式验收要看独立证据，不只看页面。</div>
+</section>
+<section class="route" aria-labelledby="route-title">
+  <h2 id="route-title">七步学习路线</h2>
+  <ol class="route-grid">
+    <li><a href="#ch-01"><strong>打好基础</strong><span>文档说明、系统组成、数据目录、安装启动（第 1～3 章）。</span></a></li>
+    <li><a href="#ch-04"><strong>认识工作台</strong><span>首页导航、工作包搜索、筛选和详情（第 4～5 章）。</span></a></li>
+    <li><a href="#ch-06"><strong>建立课题</strong><span>创建研究上下文并启动 Workflow（第 6 章）。</span></a></li>
+    <li><a href="#ch-07"><strong>执行和留证</strong><span>周计划、工作项、证据、完成门（第 7 章）。</span></a></li>
+    <li><a href="#ch-08"><strong>生成成果</strong><span>建议、周报、成效卡和 PPTX（第 8 章）。</span></a></li>
+    <li><a href="#ch-09"><strong>扩展与治理</strong><span>Skill、治理、CLI/API（第 9～11 章）。</span></a></li>
+    <li><a href="#ch-12"><strong>核对边界</strong><span>实现状态、故障恢复、运维和验收建议（第 12～16 章）。</span></a></li>
+  </ol>
+</section>
+
+<section class="chapter"><h2 id="ch-01">1. 文档说明</h2>
+<h3 id="sec-001">1.1 编写目的</h3>
+<p>本文说明科研工作台当前版本的安装、启动、页面导航、常用操作、CLI/API 使用方法、错误处理和功能边界。本文严格以当前源码和测试结果为准，不把 SRS/SDD 中尚未实现的目标描述为现成功能。</p>
+<h3 id="sec-002">1.2 适用范围</h3>
+<p>适用于 Windows 10/11、Python 3.12 的本地离线部署。系统默认只监听 <code>127.0.0.1</code>，数据保存在项目 <code>data/</code> 目录，证据文件只能引用 <code>data/artifacts/</code> 根目录下的相对路径。</p>
+<h3 id="sec-003">1.3 当前版本状态</h3>
+<table>
+<thead>
+<tr>
+<th scope="col">范围</th>
+<th scope="col">状态</th>
+<th scope="col">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>页面导航和工作包目录</td>
+<td>已实现</td>
+<td>可从网页打开总览、目录、筛选和详情</td>
+</tr>
+<tr>
+<td>课题、周计划和工作项</td>
+<td>已实现</td>
+<td>页面表单连接本地 SQLite</td>
+</tr>
+<tr>
+<td>执行、证据、建议和完成门</td>
+<td>已实现</td>
+<td>通过周执行台操作；完成仍受人工确认规则约束</td>
+</tr>
+<tr>
+<td>Skill 注册/运行</td>
+<td>部分实现</td>
+<td>网页可注册；审批和运行主要通过 API/CLI</td>
+</tr>
+<tr>
+<td>周报、成效卡、PPTX</td>
+<td>部分实现</td>
+<td>可生成基础报告和最小 PPTX，复杂母版未实现</td>
+</tr>
+<tr>
+<td>治理、双 Agent 文档更新</td>
+<td>部分实现</td>
+<td>治理页可读审计；未配置 Agent 宿主时明确返回 <code>MANUAL_REQUIRED</code></td>
+</tr>
+<tr>
+<td>运维配置中心</td>
+<td>已实现待外部复验</td>
+<td>单一 <code>operations.json</code>、附件规则、业务根选择、模型摘要与连接测试已接入；真实目录窗口和外部模型需人工验证</td>
+</tr>
+<tr>
+<td>技术说明与 12 工作流视图</td>
+<td>已实现，待独立验收</td>
+<td>三份手册为离线运行期资产；12 工作流只读映射覆盖 68 个工作包</td>
+</tr>
+<tr>
+<td>完整 SRS/SDD 目标</td>
+<td>未全部实现</td>
+<td>详见第 12 章核对表</td>
+</tr>
+</tbody>
+</table>
+</section><section class="chapter"><h2 id="ch-02">2. 系统说明</h2>
+<h3 id="sec-004">2.1 系统用途</h3>
+<p>科研工作台把研究上下文、工作包、周计划、实验记录、证据、完成门和组会材料放到一个本地工作目录中。它记录“做了什么、产生了什么、依据是什么、下一步是什么”，不替代研究人员判断科学结论。</p>
+<h3 id="sec-005">2.2 系统组成</h3>
+<pre><code class="language-text">浏览器 -&gt; 本地 Web 服务 -&gt; Application Facade -&gt; SQLite
+                                      |-&gt; data/artifacts
+                                      |-&gt; Markdown/PPTX/HTML 导出
+                                      `-&gt; 受控 Skill 子进程（需批准）
+</code></pre>
+<h3 id="sec-006">2.3 数据目录</h3>
+<pre><code class="language-text">scienceresearch/
+├─ data/
+│  ├─ scienceresearch.db       # 本地业务数据库
+│  └─ artifacts/                # 证据和 Skill 产物根目录
+├─ backups/                     # 备份输出
+├─ exports/                     # 报告/PPTX 输出
+├─ log/                         # demand/engineering 投影日志
+├─ doc/                         # 需求、设计和用户手册
+├─ output/                      # 报告、QA/截图证据、隔离运行和历史归档
+├─ tests/                       # 自动化测试
+├─ .codex/                      # 项目 Agent 与 Skill
+└─ src/                         # Python 源码
+</code></pre>
+<p>不要直接修改 SQLite 文件，不要在网页中填写绝对路径。<code>data/</code> 是默认唯一正式业务数据根；测试和截图必须使用 <code>output/</code> 下的隔离目录。历史手工测试数据库归档在 <code>output/archive/legacy-root-runs/</code>，不能用于替换正式数据库。备份、迁移和正式文档替换前应保留可恢复副本。</p>
+</section><section class="chapter"><h2 id="ch-03">3. 安装与启动</h2>
+<h3 id="sec-007">3.1 环境要求</h3>
+<ul>
+<li>Windows 10/11 x86-64；</li>
+<li>Python 3.12 或更高的 3.12.x；</li>
+<li>不需要联网，不需要单独安装数据库或 Node.js；</li>
+<li>使用 PowerShell 或 Windows Terminal。</li>
+</ul>
+<h3 id="sec-008">3.2 Python 直接启动（推荐）</h3>
+<pre><code class="language-powershell">cd &lt;项目根&gt;
+python serve.py
+</code></pre>
+<p>默认地址：<code>http://127.0.0.1:8765/</code></p>
+<p>自定义端口：</p>
+<pre><code class="language-powershell">python serve.py --port 8770
+</code></pre>
+<p>自定义数据目录：</p>
+<pre><code class="language-powershell">python serve.py --data-dir &lt;项目根&gt;\data
+</code></pre>
+<h3 id="sec-009">3.3 PowerShell 启动</h3>
+<pre><code class="language-powershell">cd &lt;项目根&gt;
+powershell -ExecutionPolicy Bypass -File .\run_web.ps1
+</code></pre>
+<p><code>run_web.ps1</code> 只是 Windows 启动包装器，会设置 <code>PYTHONPATH</code> 并调用同一个 Python 服务。启动后窗口没有新提示符是正常现象，表示服务在前台等待请求。</p>
+<h3 id="sec-010">3.4 停止服务</h3>
+<p>在服务窗口按 <code>Ctrl+C</code>。出现 <code>KeyboardInterrupt</code> 表示用户主动停止前台服务，不代表业务失败。</p>
+<h3 id="sec-011">3.5 端口占用</h3>
+<pre><code class="language-powershell">Get-NetTCPConnection -LocalPort 8765 -State Listen
+</code></pre>
+<p>如果端口被占用，换用空闲端口，例如 <code>8770</code>，并访问对应端口。不要结束不属于科研工作台的 HyperWorks 或其他进程。</p>
+</section><section class="chapter"><h2 id="ch-04">4. 首页和导航</h2>
+<p>启动后进入“科研工作分解与组会汇报”主工作台。页面沿用原型的深蓝侧栏、橙色强调、四项统计卡和目录/详情双栏布局，并显示：</p>
+<ol>
+<li>8 个科研方面、完整 68 个服务端工作包卡片及搜索入口；</li>
+<li>当前 Research Context 数量与周计划数量；</li>
+<li>工作包详情，包括执行方法、可验收交付物、汇报措辞、研究示例，以及进入模板、产物和人工 Skill 的链接；</li>
+<li>“本周目标、新增认识、关键证据/产物、当前问题、下周行动”摘要生成器；</li>
+<li>课题、周计划、报告、Skills、治理和运维入口。</li>
+</ol>
+<p>启用 JavaScript 时，可直接在首页搜索名称、行动、交付物或汇报措辞，并按八个科研方面筛选。页面实时显示命中数量；无匹配项时显示空态；“清除筛选”会恢复完整 68 个工作包。点击卡片或聚焦卡片后按 <code>Enter</code>，右侧会更新对应的真实详情、当前选中状态和详情入口。</p>
+<p>填写摘要字段后，页面会显示本机草稿保存时间；刷新页面可恢复未提交草稿。“生成摘要”会重新生成内容并把键盘焦点移到摘要结果；“清空本机草稿”只删除五个摘要字段和对应 <code>localStorage</code> 项，不影响服务端数据。剪贴板不可用时页面会选中摘要，并提示按 <code>Ctrl+C</code> 手动复制。Workflow、Evidence、Report、工作项和完成状态始终以服务端为准。禁用 JavaScript 时，仍可通过每个卡片的普通链接打开完整详情，并使用服务端搜索表单、标准表单和报告入口。</p>
+<p>键盘用户可用页面第一个焦点项“跳到主要内容”绕过导航；系统保持可见焦点。系统检测到“减少动态效果”偏好时，不使用平滑滚动。1000px 以下侧栏变为可横向滚动的顶部导航，600px 以下卡片和摘要字段改为单列；宽表格在自身容器内横向滚动，不使整个页面溢出。</p>
+<p>顶部导航：</p>
+<table>
+<thead>
+<tr>
+<th scope="col">页面</th>
+<th scope="col">地址</th>
+<th scope="col">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>总览</td>
+<td><code>/</code></td>
+<td>查看 8/68 目录、工作包详情、摘要生成器和当前统计</td>
+</tr>
+<tr>
+<td>技术说明</td>
+<td><code>/technical-docs</code></td>
+<td>离线查看 AI4SCIENCE、技术栈和用户手册</td>
+</tr>
+<tr>
+<td>工作包</td>
+<td><code>/work-packages</code></td>
+<td>搜索、筛选和打开 68 个工作包</td>
+</tr>
+<tr>
+<td>课题流程</td>
+<td><code>/contexts</code></td>
+<td>创建项目、课题或研究点</td>
+</tr>
+<tr>
+<td>周计划</td>
+<td><code>/weeks</code></td>
+<td>创建周记录并添加工作项</td>
+</tr>
+<tr>
+<td>Skills</td>
+<td><code>/skills</code></td>
+<td>注册本地 Skill Manifest</td>
+</tr>
+<tr>
+<td>报告</td>
+<td><code>/reports</code></td>
+<td>查看 Markdown 周报并生成报告制品</td>
+</tr>
+<tr>
+<td>治理</td>
+<td><code>/governance</code></td>
+<td>查看需求/工程治理说明</td>
+</tr>
+<tr>
+<td>运维</td>
+<td><code>/operations</code></td>
+<td>业务数据、成效卡附件与 OpenAI 兼容模型配置</td>
+</tr>
+</tbody>
+</table>
+<p>页面、样式和脚本均为本地资源，核心操作不访问互联网。</p>
+<p>实际结果图（以下截图均来自 <code>output/pm-chain-20260830/</code> 隔离测试数据，不代表正式生产数据）：</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>首页主工作台：8 个科研方面、68 个工作包和详情面板</span><code>../output/pm-chain-20260830/browser/01-home.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 4-1：主工作台桌面端；展示 8 个科研方面、68 个工作包、统计卡和详情面板，对应 FR-001、FR-048。</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>首页移动端实际显示结果</span><code>../output/pm-chain-20260830/browser/17-home-mobile.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 4-2：首页移动端；验证顶部导航、统计卡和工作包区域在 390px 视口下可读且无整页横向溢出，对应 QUAL-002、QUAL-013。</p>
+<h3 id="sec-20260917-technical">4.4 技术说明板块</h3>
+<p>入口：首页导航的 <strong>“技术说明”</strong>，地址为 <code>/technical-docs</code>。该页面内置三份可离线查看的运行期手册：</p>
+<ol>
+<li><strong>AI4SCIENCE 教学手册</strong>：三阶段、12 个工作流、68 个工作包、成果卡、交接书和证据门；</li>
+<li><strong>ScienceResearch 技术栈教学手册</strong>：目标栈、请求旅程、迁移兼容栈和质量工具；</li>
+<li><strong>科研工作台用户手册</strong>：安装启动、页面导航和用户路径。</li>
+</ol>
+<p>操作步骤：</p>
+<ol>
+<li>启动前后端后打开 <code>/technical-docs</code>；</li>
+<li>在顶部三张手册卡片中点击要阅读的手册；</li>
+<li>在页面下方预览区阅读内容，并可查看来源、版本、字节数和 SHA-256；</li>
+<li>点击“返回主目录”回到 <code>/</code>。</li>
+</ol>
+<p>行为边界：手册资产在构建期从正式源生成，页面不读取开发者机器绝对路径，不依赖外网。若清单或资产缺失、哈希不一致，页面显示加载失败和重试按钮，不会用空白页面表示成功。</p>
+<figure class="evidence"><figcaption>图例 4-3：技术说明桌面端；验证三份手册入口、manifest 信息和同源预览区，对应 FR-TDOC-001、FR-TDOC-002。</figcaption></figure>
+<figure class="evidence"><figcaption>图例 4-4：技术说明 390px 移动端；验证手册卡片和预览区单列可读，对应 NFR-ACCESS-001、NFR-OFFLINE-001。</figcaption></figure>
+</section><section class="chapter"><h2 id="ch-05">5. 工作包目录</h2>
+<h3 id="sec-012">5.1 搜索和筛选</h3>
+<p>首页快速定位：</p>
+<ol>
+<li>在首页“工作包目录”的搜索框输入名称、行动、交付物或汇报措辞；</li>
+<li>如有需要，选择一个科研方面；</li>
+<li>观察命中数量和仅保留的方面/卡片；</li>
+<li>点击卡片在当前页面查看详情，或点击“打开模板、产物和 Skill”进入完整详情；</li>
+<li>点击“清除筛选”恢复 68 个工作包。</li>
+</ol>
+<p>完整目录的服务端搜索：</p>
+<ol>
+<li>点击“工作包目录”，或在首页点击“在完整目录中搜索”；</li>
+<li>输入关键词并选择研究方面；</li>
+<li>点击“筛选”；</li>
+<li>点击结果中的 WP ID 打开详情。</li>
+</ol>
+<p>查询结果按稳定 ID 展示方面、工作包名称和交付物。空查询显示全部工作包。</p>
+<h3 id="sec-013">5.2 查看工作包详情</h3>
+<p>详情页显示：</p>
+<ul>
+<li>WP 稳定 ID；</li>
+<li>所属研究方面；</li>
+<li>行动描述；</li>
+<li>模板字段；</li>
+<li>交付物和完成要求；</li>
+<li>使用 Context ID 启动 Workflow 的表单。</li>
+</ul>
+<p>当前模板来源是 <code>idea/科研工作分解与每周组会汇报模板_20260828.md</code>。若页面提示 Catalog 无效，先检查模板文件编码和 8 个方面/68 个工作包完整性。</p>
+<p>实际结果图：</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>工作包搜索与筛选结果</span><code>../output/pm-chain-20260830/browser/02-work-package-search.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 5-1：工作包搜索/筛选结果；展示关键词命中后的目录状态，对应 FR-002、FR-049～FR-052。</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>工作包详情、模板与人工 Skill 入口</span><code>../output/pm-chain-20260830/browser/03-work-package-detail.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 5-2：工作包详情页；展示执行方法、交付物、模板字段和人工 Skill 入口，对应 FR-003、FR-022。</p>
+<h3 id="sec-20260917-inline">5.3 工作包内新增和查看成效卡</h3>
+<p>课题工作台的工作包视图中，工作包详情、<strong>新增成效卡</strong>表单和<strong>当前工作包成效卡</strong>位于对应工作包卡片下方，不再分离到右侧独立详情栏。</p>
+<ol>
+<li>打开一个课题的 <code>/contexts/{contextId}</code>；</li>
+<li>点击工作包卡片标题、卡片主体或“查看详情”；</li>
+<li>观察 URL 增加 <code>wp=WP-xxx</code>，该卡片显示 <code>aria-current="true"</code> 并展开详情；</li>
+<li>在“新增成效卡”中填写日期、事件、描述，按需勾选重点成效后提交；</li>
+<li>在当前工作包成效卡列表中点击卡片标题展开，执行重点标记、附件上传、下载或预览；</li>
+<li>点击另一个工作包卡片后，URL、选中状态和下方详情同步变化；刷新页面仍恢复同一工作包。</li>
+</ol>
+<p>失败行为：日期和事件为空时提交按钮不可用；保存失败、版本冲突、附件超限、类型不允许或同名附件会沿既有错误提示显示，不会静默丢失输入。工作包详情返回入口现在直接回到主目录 <code>/</code>，不再先进入工作包目录。</p>
+<figure class="evidence"><figcaption>图例 5-3：工作包内详情与成效卡桌面端；验证详情、新增表单和当前成效卡归属同一工作包。该浏览器验证使用隔离 API 夹具，正式数据路径仍需独立 QA。</figcaption></figure>
+<figure class="evidence"><figcaption>图例 5-4：工作包内成效卡 390px 移动端；验证折叠结构和表单在单列下可读，对应 FR-WP-001～FR-WP-003。</figcaption></figure>
+</section><section class="chapter"><h2 id="ch-06">6. 创建课题与流程</h2>
+<h3 id="sec-014">6.1 创建研究上下文</h3>
+<ol>
+<li>打开“课题流程”；</li>
+<li>选择类型：<code>project</code>、<code>topic</code> 或 <code>point</code>；</li>
+<li>填写名称、待解决问题和研究目标；</li>
+<li>点击“创建”。</li>
+</ol>
+<p>创建成功后，页面返回上下文列表。<code>problem</code> 不能为空。上下文 ID 供后续 Workflow 使用。</p>
+<h3 id="sec-015">6.2 从工作包启动 Workflow</h3>
+<ol>
+<li>打开工作包详情；</li>
+<li>将已创建的 Context ID 填入表单；</li>
+<li>点击“为课题启动 Workflow”。</li>
+</ol>
+<p>成功后会创建一个状态为 <code>Draft</code> 的流程实例。当前版本不在页面中自动判断科学方案是否正确，研究人员必须自行审阅工作包模板和输入。</p>
+<p>实际结果图：</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>课题流程创建入口</span><code>../output/pm-chain-20260830/browser/04-contexts.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 6-1：课题流程创建入口；展示类型、名称、问题和目标输入项，对应 FR-006。</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>课题创建成功后的上下文页面</span><code>../output/pm-chain-20260830/browser/05-context-created.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 6-2：课题创建结果；展示服务端生成的 Context 及创建成功状态，对应 FR-006、FR-007。</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>课题详情中的 68 条 Workflow</span><code>../output/pm-chain-20260830/browser/06-workflows-68.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 6-3：课题详情 Workflow 列表；展示 68 条流程实例及状态/选择状态分离，对应 FR-007、FR-008。</p>
+<h3 id="sec-20260917-workflows">6.3 查看 12 个科研工作流</h3>
+<p>课题工作台提供 <strong>“工作包视图 / 12 工作流视图”</strong>切换。12 工作流来自 AI4SCIENCE 的责任边界，用于浏览和检查，不改变课题内 68 条 workflow 执行快照。</p>
+<ol>
+<li>打开课题工作台；</li>
+<li>点击 <strong>“12 工作流视图”</strong>，URL 增加 <code>view=workflows</code>；</li>
+<li>按 Explore 探索、Execute 执行、Express 表达三个阶段查看 12 个工作流；</li>
+<li>点击工作流标题展开，查看主责角色、关键输出、映射工作包、完成状态和成效卡摘要；</li>
+<li>点击某个工作包，页面返回工作包视图并直接定位到该工作包详情。</li>
+</ol>
+<p>数据边界：前端调用只读接口 <code>GET /api/v1/research-workflow-map</code>。接口必须返回 12 个工作流并覆盖且仅覆盖 <code>WP-001</code>～<code>WP-068</code>；如果映射缺失、重复或包含未知 ID，页面显示错误并可重试，不渲染部分成功列表。</p>
+<figure class="evidence"><figcaption>图例 6-1：12 工作流视图；验证 Explore/Execute/Express 分组、工作流展开和映射工作包入口。该浏览器验证使用隔离 API 夹具，接口映射另由真实 HTTP 冒烟验证。</figcaption></figure>
+</section><section class="chapter"><h2 id="ch-07">7. 周计划和执行台</h2>
+<h3 id="sec-016">7.1 创建周记录</h3>
+<ol>
+<li>打开“周计划”；</li>
+<li>选择周一日期；</li>
+<li>点击“创建周”。</li>
+</ol>
+<p>同一个日期只能创建一条周记录，重复创建返回冲突错误。</p>
+<h3 id="sec-017">7.2 添加工作项</h3>
+<p>在对应周记录中填写：</p>
+<ul>
+<li><code>WP ID</code>：例如 <code>WP-001</code>；</li>
+<li>本周工作标题；</li>
+<li>交付物；</li>
+<li>如果是本周第二项，填写两项工作的关系。</li>
+</ul>
+<p>每周最多 2 项工作。第二项必须说明与第一项的关系，超过数量或缺少关系会被拒绝。</p>
+<h3 id="sec-018">7.3 记录执行</h3>
+<ol>
+<li>点击“进入执行台”；</li>
+<li>填写动作、输入、结果和产物说明；</li>
+<li>点击“记录执行”。</li>
+</ol>
+<p>记录后工作项从 <code>Todo</code> 进入 <code>InProgress</code>。执行记录追加到事件表，不覆盖历史记录。</p>
+<h3 id="sec-019">7.4 登记证据</h3>
+<p>填写证据名称、类型和相对路径，例如：</p>
+<pre><code class="language-text">result.csv
+runs/RUN-xxxx/result.txt
+</code></pre>
+<p>路径必须位于 <code>data/artifacts/</code> 根目录内。以下路径会被拒绝：</p>
+<pre><code class="language-text">..\\outside.txt
+C:\\secret.txt
+\\\\server\\share\\file.txt
+</code></pre>
+<p>系统当前登记文件引用，不会替用户判断文件内容是否足以证明科学结论。</p>
+<h3 id="sec-020">7.5 完成门和完成操作</h3>
+<p>当前完成检查包含 6 项：</p>
+<pre><code class="language-text">target       目标明确
+standard     完成标准明确
+deliverable  交付物已定义
+evidence     证据已登记
+boundary     结论边界已记录
+next_step    下一步已定义
+</code></pre>
+<p>六项门全部通过后才允许进入完成候选。如果系统已生成 <code>CompletionSuggested</code>，还必须由作者在建议记录上选择 <code>Accepted</code>，否则完成操作返回 <code>AUTHOR_CONFIRMATION_REQUIRED</code>。</p>
+<p>实际结果图：</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>周计划创建与工作项入口</span><code>../output/pm-chain-20260830/browser/07-week-plan.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 7-1：周计划和工作项入口；展示周记录创建、工作项字段和执行台入口，对应 FR-009。</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>执行台与 Evidence 结果状态</span><code>../output/pm-chain-20260830/browser/08-execution-evidence.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 7-2：执行与证据状态；对应执行事件记录、Evidence 登记及 Pending/Valid 生命周期，对应 FR-010、FR-011。</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>六项完成门操作位置（修复前历史截图；最终通过状态见独立 QA YAML 证据）</span><code>../output/pm-chain-20260830/browser/09-gates.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 7-3：六项完成门操作位置；该图为修复前历史截图，仅用于说明页面位置，最终通过状态以 <code>qa009-six-gates-pass.yml</code> 为准，对应 FR-012。</p>
+</section><section class="chapter"><h2 id="ch-08">8. 建议、报告与成效卡</h2>
+<h3 id="sec-021">8.1 生成下一步建议</h3>
+<p>在执行台点击“生成下一步建议”。</p>
+<ul>
+<li>完成门未全部通过：生成 <code>Experiment</code> 候选，提示补充证据或继续实验；</li>
+<li>完成门已全部通过：生成 <code>CompletionSuggested</code>；</li>
+<li>建议只是候选，不会自动改变研究结论。</li>
+</ul>
+<h3 id="sec-022">8.2 生成周报</h3>
+<p>打开“报告”，填写 Week ID 后选择周记录。页面显示 UTF-8 Markdown 周报预览。</p>
+<p>CLI 方式：</p>
+<pre><code class="language-powershell">.\\run_cli.ps1 report &lt;week-id&gt; --output exports\\weekly.md
+</code></pre>
+<h3 id="sec-023">8.3 生成成效卡和 PPTX</h3>
+<p>CLI 方式：</p>
+<pre><code class="language-powershell">.\\run_cli.ps1 card &lt;week-id&gt; --output exports\\card.html
+.\\run_cli.ps1 pptx &lt;week-id&gt; exports\\report.pptx
+</code></pre>
+<p>Web 页面可查看成效卡 API 链接并触发基础 PPTX 生成。当前 PPTX 是标准库生成的最小单页文件，复杂母版、图片排版、多页布局和正式视觉规范尚未完成，不应作为最终汇报模板。</p>
+<p>实际结果图：</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>Recommendation 生成与决定结果</span><code>../output/pm-chain-20260830/browser/10-recommendation.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 8-1：Recommendation 操作结果；展示建议生成及 Accept/Reject 决定证据，对应 FR-013、FR-034。</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>ReportModel 报告草稿</span><code>../output/pm-chain-20260830/browser/11-report-draft.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 8-2：ReportModel 草稿；展示报告字段、日志警告和图片状态，对应 FR-014、FR-046。</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>作者确认后的报告快照</span><code>../output/pm-chain-20260830/browser/12-report-confirmed.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 8-3：作者确认后的报告快照；展示 Confirmed 状态和冻结结果，对应 FR-015、FR-016。</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>PPTX 生成反馈</span><code>../output/pm-chain-20260830/browser/13-pptx-success.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 8-4：PPTX 生成反馈；展示导出动作及生成文件结果，当前为标准库最小 PPTX，对应 FR-017～FR-021。</p>
+</section><section class="chapter"><h2 id="ch-09">9. Skill 注册和运行</h2>
+<h3 id="sec-024">9.1 注册 Manifest</h3>
+<p>Skill Manifest 必须包含：</p>
+<pre><code class="language-json">{
+  &quot;id&quot;: &quot;demo&quot;,
+  &quot;version&quot;: &quot;1&quot;,
+  &quot;source&quot;: &quot;local&quot;,
+  &quot;commit&quot;: &quot;abc&quot;,
+  &quot;license&quot;: &quot;MIT&quot;,
+  &quot;trust&quot;: &quot;reviewed&quot;,
+  &quot;capabilities&quot;: [],
+  &quot;inputs&quot;: {},
+  &quot;outputs&quot;: {},
+  &quot;command&quot;: [&quot;python&quot;, &quot;-c&quot;, &quot;print('ok')&quot;]
+}
+</code></pre>
+<p>网页 Skills 页面可粘贴 JSON Manifest 注册本地 Skill；CLI 方式：</p>
+<pre><code class="language-powershell">.\\run_cli.ps1 skill-register tests\\fixtures\\demo-skill.json
+</code></pre>
+<h3 id="sec-025">9.2 计划、审批、执行和取消</h3>
+<pre><code class="language-powershell">.\\run_cli.ps1 skill-plan &lt;skill-id&gt; &lt;idempotency-key&gt;
+.\\run_cli.ps1 skill-approve &lt;run-id&gt;
+.\\run_cli.ps1 skill-run &lt;run-id&gt;
+.\\run_cli.ps1 skill-cancel &lt;run-id&gt;
+</code></pre>
+<p>运行规则：</p>
+<ul>
+<li>任何 Skill 必须先计划再审批；</li>
+<li>命令以参数列表执行，禁止 shell 字符串；</li>
+<li>产物只能写入 <code>data/artifacts/runs/&lt;run-id&gt;/</code>；</li>
+<li>网络、工作区读写、覆盖、删除和提权能力默认返回 <code>MANUAL_REQUIRED</code>；</li>
+<li>超时、非零退出、取消和崩溃会保留终态和错误码；</li>
+<li>运行使用幂等键，重复幂等键不会重复创建任务。</li>
+</ul>
+<p>实际结果图：</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>Skills 注册、人工指导与安全边界</span><code>../output/pm-chain-20260830/browser/14-skills.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 9-1：Skills 页面；展示 Manifest 注册、人工指导入口和 <code>MANUAL_REQUIRED</code> 安全边界，对应 FR-023、FR-024。</p>
+</section><section class="chapter"><h2 id="ch-10">10. 治理、日志和运维</h2>
+<h3 id="sec-026">10.1 需求和工程事件</h3>
+<p>CLI：</p>
+<pre><code class="language-powershell">.\\run_cli.ps1 demand &quot;新增报告字段&quot;
+.\\run_cli.ps1 engineering &quot;更新报告渲染器&quot; --files src\\scienceresearch\\web.py
+.\\run_cli.ps1 governance
+</code></pre>
+<p>事件写入 SQLite，并投影到：</p>
+<pre><code class="language-text">log/demand_log.md
+log/engineer_log.md
+</code></pre>
+<h3 id="sec-027">10.2 双 Agent 文档更新</h3>
+<pre><code class="language-powershell">.\\run_cli.ps1 doc-update &lt;demand-id&gt;
+</code></pre>
+<p>当前没有配置真实项目经理/架构师 Agent 宿主时，命令会进入状态门并返回 <code>MANUAL_REQUIRED</code>，不会修改正式 SRS/SDD。这是安全降级，不是系统故障。</p>
+<h3 id="sec-028">10.3 项目工作日志读取</h3>
+<pre><code class="language-powershell">.\\run_cli.ps1 project-logs &lt;项目根&gt; --from 2026-08-01 --to 2026-08-31
+</code></pre>
+<p>读取为只读操作。单条无法解析的日志不会阻断其他合法记录；源日志不会被修改。</p>
+<h3 id="sec-029">10.4 健康检查、备份和恢复</h3>
+<pre><code class="language-powershell">.\\run_cli.ps1 health
+.\\run_cli.ps1 backup backups\\manual.json
+.\\run_cli.ps1 restore backups\\manual.json
+</code></pre>
+<p>健康状态必须为 <code>live=true, ready=true</code> 才表示数据库和 Catalog 可用。备份包含全部业务表并校验表集合；恢复前应确认备份来源和目标数据目录。</p>
+<p>运维页面地址：<code>/operations</code>。</p>
+<p>实际结果图：</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>治理候选与项目事件页面</span><code>../output/pm-chain-20260830/browser/15-governance.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 10-1：治理页面；展示 demand/engineering 事件、文档候选和人工门提示，对应 FR-041～FR-044。</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>运维健康检查、备份和只读日志导入页面</span><code>../output/pm-chain-20260830/browser/16-operations.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 10-2：运维页面；展示健康检查、备份、只读日志导入和投影重建入口，对应 FR-037、FR-042、OPS-001～OPS-013。</p>
+</section><section class="chapter"><h2 id="ch-11">11. CLI 和 API 快速参考</h2>
+<h3 id="sec-030">11.1 CLI 主命令</h3>
+<pre><code class="language-text">catalog, health, context, contexts, workflow, week, item,
+execute, evidence, gate, complete, show-week, report, backup,
+restore, skill-register, skill-plan, skill-approve, skill-run,
+skill-cancel, recommend, recommend-decide, card, demand,
+engineering, doc-update, governance, project-logs, pptx,
+skill-discover
+</code></pre>
+<h3 id="sec-031">11.2 当前 Web API</h3>
+<pre><code class="language-text">GET  /api/catalog
+GET  /api/health
+GET  /api/governance
+GET  /api/project-logs
+
+POST /api/contexts
+POST /api/weeks
+POST /api/workflows
+POST /api/week-items
+POST /api/week-items/{id}/execute
+POST /api/week-items/{id}/evidence
+POST /api/week-items/{id}/gates
+POST /api/week-items/{id}/recommend
+POST /api/week-items/{id}/complete
+POST /api/skills
+POST /api/skill-runs
+POST /api/skill-runs/{id}/approve
+POST /api/skill-runs/{id}/execute
+POST /api/skill-runs/{id}/cancel
+POST /api/recommendations/{id}/decide
+POST /api/reports/pptx
+POST /api/skill-discovery
+POST /api/demands
+POST /api/engineering-events
+POST /api/doc-updates/{id}/advance
+POST /api/backup
+</code></pre>
+<p>JSON API 使用 <code>Content-Type: application/json</code>；浏览器表单使用 <code>application/x-www-form-urlencoded</code>。浏览器创建 Context 成功后返回 303 并回到首页，JSON 调用仍返回结构化 JSON。</p>
+<p>实际结果图：</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>Web 运维页面中的健康检查 JSON 和对应操作入口</span><code>../output/pm-chain-20260830/browser/16-operations.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 11-1：Web/API 对照结果；健康检查 JSON 与浏览器操作入口同时可见，用于说明 API 与页面的对应关系。</p>
+</section><section class="chapter"><h2 id="ch-12">12. 与需求文档逐项核对</h2>
+<p>以下状态是基于当前网页、CLI、源码和自动化测试的实现核对，不是对 SRS 的重新解释。</p>
+<table>
+<thead>
+<tr>
+<th scope="col">SRS 范围</th>
+<th scope="col">当前状态</th>
+<th scope="col">核对结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FR-001～FR-003</td>
+<td>部分实现</td>
+<td>8/68、搜索/筛选/详情页已实现；模板展示为基础字段，完整填写模板未完成</td>
+</tr>
+<tr>
+<td>FR-004</td>
+<td>未实现</td>
+<td>没有目录规则驱动的工作包选择建议</td>
+</tr>
+<tr>
+<td>FR-005</td>
+<td>未实现</td>
+<td>没有网页 Catalog dry-run、版本发布和原子切换</td>
+</tr>
+<tr>
+<td>FR-006～FR-009</td>
+<td>部分实现</td>
+<td>Context、周记录、1～2 项、执行和状态基础流程可用；完整状态机和并发版本合同未完成</td>
+</tr>
+<tr>
+<td>FR-010～FR-013</td>
+<td>部分实现</td>
+<td>证据、实验事件、完成门和候选建议可用；阶段确认和完整 Artifact 引用未完成</td>
+</tr>
+<tr>
+<td>FR-014～FR-021</td>
+<td>部分实现</td>
+<td>Markdown/基础成效卡/PPTX 可生成；日期/范围选择、完整报告模型和统计尚未完成</td>
+</tr>
+<tr>
+<td>FR-022</td>
+<td>部分实现</td>
+<td>68 个 WP 有模板字段展示；模板生成空白产物和版本化模板未完成</td>
+</tr>
+<tr>
+<td>FR-023</td>
+<td>部分实现</td>
+<td>Skill 可注册和运行；工作包绑定、本地批准 Skill 与人工指导 Skill 列表未完成</td>
+</tr>
+<tr>
+<td>FR-024</td>
+<td>部分实现</td>
+<td>有显式 HTTPS allowlist Discovery API，默认关闭；候选持久化和适配差距展示未完成</td>
+</tr>
+<tr>
+<td>FR-025～FR-028</td>
+<td>部分实现</td>
+<td>Workflow 基础实例可创建；干预、暂停/恢复/归档重开和完整状态机未完成</td>
+</tr>
+<tr>
+<td>FR-029～FR-033</td>
+<td>部分实现</td>
+<td>Skill 计划/批准/执行/取消、超时和高风险拒绝已测试；强隔离沙箱未实现</td>
+</tr>
+<tr>
+<td>FR-034～FR-036</td>
+<td>部分实现</td>
+<td>建议和完成确认规则有实现；三分支完整建议模型未实现</td>
+</tr>
+<tr>
+<td>FR-037～FR-040</td>
+<td>部分实现</td>
+<td>日志读取、Markdown、成效卡、最小 PPTX 已实现；完整多页渲染和图片/溯源展示未完成</td>
+</tr>
+<tr>
+<td>FR-041～FR-042</td>
+<td>部分实现</td>
+<td>demand/engineering 事件及 Markdown 投影已实现；投影完整重建验证未完成</td>
+</tr>
+<tr>
+<td>FR-043～FR-044</td>
+<td>未实现/人工门</td>
+<td>仅记录治理事件；真实 PM/Architect Agent、联合 diff 和原子应用未接入</td>
+</tr>
+<tr>
+<td>FR-045</td>
+<td>未实现</td>
+<td>没有完整 Catalog/模板/绑定历史版本管理</td>
+</tr>
+<tr>
+<td>FR-046～FR-047</td>
+<td>部分实现</td>
+<td>基础报告与周记录查询可用；完整日期、Context、方面、状态过滤未完成</td>
+</tr>
+<tr>
+<td>FR-048～FR-056</td>
+<td>已实现（当前交互切片）</td>
+<td>服务端首页、八方面/68 工作包、即时搜索/筛选/空态、选择详情、摘要草稿与复制回退、响应式、键盘/减少动态效果、动态文本转义和无 CDN 已实现；业务状态不以浏览器为真源</td>
+</tr>
+<tr>
+<td>DATA-001～DATA-007</td>
+<td>部分实现</td>
+<td>SQLite 表和基础记录可用，完整 Schema/版本/溯源合同未完成</td>
+</tr>
+<tr>
+<td>DATA-008～DATA-016</td>
+<td>部分实现</td>
+<td>Skills、建议、报告、治理、日志等基础表/流程存在，完整数据字典和历史生命周期未完成</td>
+</tr>
+<tr>
+<td>INT-001～INT-005</td>
+<td>部分实现</td>
+<td>当前 API/CLI 覆盖主要操作；版本化 API、Problem Details、分页和 restore inspect/apply 未完成</td>
+</tr>
+<tr>
+<td>INT-006～INT-008</td>
+<td>部分实现</td>
+<td>Skill、PPTX、成效卡存在基础实现；复杂渲染和完整 Artifact 合同未完成</td>
+</tr>
+<tr>
+<td>INT-009～INT-010</td>
+<td>未实现/人工门</td>
+<td>Agent Port 尚未连接真实宿主</td>
+</tr>
+<tr>
+<td>INT-011～INT-013</td>
+<td>部分实现</td>
+<td>日志投影和只读日志读取存在；完整事件 Schema、警告和导入批次未完成</td>
+</tr>
+<tr>
+<td>OPS-001～OPS-006</td>
+<td>部分实现</td>
+<td>本地启动、健康、离线核心路径可用；完整关闭顺序、认证和远程访问策略未完成</td>
+</tr>
+<tr>
+<td>OPS-007～OPS-013</td>
+<td>部分实现</td>
+<td>日志、备份、Skill 运行和报告基础能力存在；定时备份、outbox、lease 和完整审计未完成</td>
+</tr>
+<tr>
+<td>NFR-001～NFR-012</td>
+<td>未完全验证</td>
+<td>已有冒烟测试；p95、覆盖率、禁网审计、1 GB 恢复、四视口和故障注入尚未全部完成</td>
+</tr>
+<tr>
+<td>UC-001～UC-008</td>
+<td>部分实现</td>
+<td>UC-001/002/004/005/007 基础路径可操作；UC-003/006/008 仍需 API/CLI 或人工步骤</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sec-032">12.1 当前已验证功能</h3>
+<pre><code class="language-text">python -m compileall -q src tests
+python -m unittest discover -s tests -v
+</code></pre>
+<p>当前结果：38 个测试通过。测试覆盖页面路由、首页交互合同、工作包目录、核心 CLI、Skill 安全、建议/成效卡、治理人工门、备份和最小 PPTX。当前环境未安装 <code>pytest</code>；<code>tests/test_architecture_boundaries.py</code> 的 3 个边界检查已通过直接函数调用，但不能表述为 pytest 执行通过。</p>
+<h3 id="sec-033">12.2 不应误认为已实现的功能</h3>
+<ul>
+<li>“网页显示 68 个工作包”不等于 68 个版本化模板和 Composite Skill 已发布；</li>
+<li>“PPTX 文件能打开”不等于正式母版、多页布局和图片溯源已完成；</li>
+<li>“返回 <code>MANUAL_REQUIRED</code>”不等于真实 Agent 自动更新已接入；</li>
+<li>“SQLite 可备份”不等于完整 migration、dry-run、RPO/RTO 演练已完成；</li>
+<li>“API 路由存在”不等于对应页面工作流和完整错误合同已实现。</li>
+</ul>
+<p>实际结果图：</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>项目阶段汇报中的需求、设计、实现与证据核对结果</span><code>../output/pm-chain-20260830/browser/19-pm-report.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 12-1：需求核对汇报页；展示需求、设计、实现、测试证据和限制条件的汇总结果。</p>
+</section><section class="chapter"><h2 id="ch-13">13. 常见问题</h2>
+<h3 id="sec-034">13.1 启动后窗口没有输出</h3>
+<p>正常。服务在前台运行。打开浏览器访问对应地址；停止服务按 <code>Ctrl+C</code>。</p>
+<h3 id="sec-035">13.2 浏览器打开的是 JSON</h3>
+<p>如果访问的是 <code>/api/contexts</code>、<code>/api/catalog</code> 等 API 地址，显示 JSON 是正常的。用户界面应访问 <code>/</code>、<code>/work-packages</code>、<code>/weeks</code> 等页面地址。</p>
+<h3 id="sec-036">13.3 页面仍是旧版</h3>
+<p>重启 Python 服务，并在浏览器按 <code>Ctrl+F5</code>。已经运行的 Python 进程不会自动加载源码修改。</p>
+<h3 id="sec-037">13.4 新建第二个周工作项失败</h3>
+<p>第二项必须填写“第二项关系”；每周最多两个工作项。</p>
+<h3 id="sec-038">13.5 证据路径被拒绝</h3>
+<p>只填写 <code>data/artifacts/</code> 根目录内的相对路径，不能填写绝对路径或包含 <code>..</code> 的逃逸路径。</p>
+<h3 id="sec-039">13.6 完成操作被拒绝</h3>
+<p>检查六项完成门；如果已有 <code>CompletionSuggested</code>，先将建议决定为 <code>Accepted</code>。</p>
+<p>实际结果图：</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>移动端页面正常打开时的首页状态，可用于排查旧页面、空白页和整页溢出</span><code>../output/pm-chain-20260830/browser/17-home-mobile.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 13-1：移动端正常页面基线；用于对照排查旧页面、空白页、导航不可见和整页横向溢出问题。</p>
+</section><section class="chapter"><h2 id="ch-14">14. 运维配置中心（E9/E10）</h2>
+<p>打开 <code>/operations</code>。该页是运行配置的唯一写入口，不再提供备份、仓库日志或治理操作；人工操作审计仍在 <code>/governance</code> 只读查看。</p>
+<h3 id="sec-040">14.1 单一配置文件</h3>
+<p>所有运行配置保存在启动数据目录下的 <code>operations.json</code>：业务数据根、附件规则、模型 Profile、受 Windows DPAPI 保护的 API Key 密文、版本历史及最近连接测试摘要均以该文件为准。不要手工编辑该文件，也不要把它复制到 <code>release/</code>。业务 SQLite、附件、审计和日志不是配置，不在此文件中。</p>
+<h3 id="sec-041">14.2 业务数据目录</h3>
+<ol>
+<li>在“业务数据”区域点击“选择目录”；服务运行在可交互 Windows 桌面会话时，会打开原生目录选择窗口。</li>
+<li>选择目录后检查输入框内容；也可以在窗口不可用时手工输入完整路径。</li>
+<li>点击“保存并在重启后启用”。系统拒绝 <code>release/</code>、<code>output/</code> 目录。</li>
+</ol>
+<p>保存只更新待启用配置，不会自动搬迁既有数据库与附件。重启前当前业务根保持不变；涉及既有业务数据时，先保留可恢复副本并按运维迁移流程确认。</p>
+<h3 id="sec-042">14.3 成效卡附件规则</h3>
+<p>可设置单文件最大字节数、每张成效卡最大附件数和允许扩展名。保存后仅影响未来上传，既有附件不被改写。版本冲突时刷新页面后重新填写，不要覆盖他人刚保存的配置。</p>
+<h3 id="sec-043">14.4 OpenAI 兼容模型</h3>
+<ol>
+<li>填写 HTTPS 服务地址、模型名、超时和 API Key，点击“保存模型配置”。Key 保存后只显示“已配置”，不会再次显示明文。</li>
+<li>查看当前版本、模型、超时和最近测试状态。</li>
+<li>点击“测试连接”。系统仅用已保存 Profile 发起最小 Chat Completions 请求，返回成功、认证失败、限流、超时或协议错误等脱敏状态与耗时。</li>
+<li>连接成功后，输入 Prompt 并生成候选文本；候选不会自动创建或修改课题、工作包、成效卡、附件或研究结论。</li>
+</ol>
+<p>测试连接与 Prompt 调用均需要可访问的外部模型服务和有效 Key。保存不会自动测试；测试失败不会覆盖已保存配置。页面、HTTP 响应、审计和日志均不显示 Key、完整 Prompt 或完整模型响应。</p>
+</section><section class="chapter"><h2 id="ch-15">15. 版本、备份和支持信息</h2>
+<ul>
+<li>代码入口：<code>serve.py</code>、<code>run_web.ps1</code>、<code>run_cli.ps1</code>；</li>
+<li>运行数据：<code>data/</code>；</li>
+<li>设计基线：<code>doc/科研工作台架构与设计方案_20260828.md</code>；</li>
+<li>需求基线：<code>doc/科研工作台需求文档_20260828.md</code>；</li>
+<li>工程日志：<code>log/engineer_log.md</code>；</li>
+<li>发生数据问题时，先执行备份，再保留 <code>health</code> 输出、错误 code、时间和相关 Run/Item ID。</li>
+</ul>
+<p>实际结果图：</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>健康状态、备份路径、日志导入和治理入口</span><code>../output/pm-chain-20260830/browser/16-operations.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 15-1：历史运维支持基线；该截图反映旧入口，当前运维操作请以第 14 章为准。</p>
+</section><section class="chapter"><h2 id="ch-16">16. 用户验收建议</h2>
+<p>建议按以下顺序验收当前版本：</p>
+<ol>
+<li>启动服务并打开 <code>/</code>；</li>
+<li>在 <code>/work-packages</code> 搜索并打开 <code>WP-001</code>；</li>
+<li>在 <code>/contexts</code> 创建一个 topic；</li>
+<li>在 <code>/weeks</code> 创建一周并添加一个工作项；</li>
+<li>在执行台记录执行、登记证据并生成建议；</li>
+<li>使用 CLI 生成 Markdown、成效卡和 PPTX；</li>
+<li>在 <code>/operations</code> 查看附件规则、单一配置文件摘要和模型测试状态；</li>
+<li>对照第 12 章确认所需功能是否已达到验收范围。</li>
+</ol>
+<p>当前手册的“已实现”仅表示该操作已经在当前代码中有可重复的路径和测试证据；对于标记为“部分实现”“未实现/人工门”的条目，应在后续版本完成后更新本手册和 SRS/SDD 追踪状态。</p>
+<p>实际验收结果图：</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>合并需求链路证据后的项目阶段汇报桌面端结果</span><code>../output/pm-chain-20260830/browser/21-pm-report-integrated-1440.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 16-1：合并后的桌面端项目阶段汇报；用于验收时查看项目结论、风险、待决策事项以及进入第 10 章完整需求链路的入口。</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>合并需求链路证据后的项目阶段汇报移动端结果</span><code>../output/pm-chain-20260830/browser/23-pm-report-integrated-390.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 16-2：合并后的 390×844 移动端项目阶段汇报；目录采用局部横向滚动，正文和图片没有整页横向溢出。</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>项目阶段汇报中的完整需求链路证据章节</span><code>../output/pm-chain-20260830/browser/24-pm-report-journeys-1440.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 16-3：阶段汇报第 10 章“需求链路证据册”；展示覆盖总览以及按需求 ID、用户动作、预期、实际结果、截图和状态证据组织的完整链路。</p>
+<p>完整的逐步截图、预期/实际结果、需求 ID 和状态证据已经融入 <code>scienceresearch项目阶段汇报_20260830.html</code> 第 10 章；独立的 <code>科研工作台需求链路证据册_20260830.html</code> 继续作为历史链接和单独阅读兼容入口。证据按功能链路组织；<code>qa009-gate-toggle-fail.png</code>、<code>qa010-navigation-loss.png</code> 属于修复前历史缺陷，不能作为最终通过证据。<code>localStorage</code> 只保存未提交摘要草稿，业务状态仍以服务端为真源。当前技术垂直切片已通过 68/68 单元测试、3/3 架构边界直接检查、QA-001～QA-010 及 Microsoft Edge 隔离浏览器主链路检查；附件/OOXML 的 API/HTTP 契约证据与浏览器视觉证据边界已单独标注。SRS 仍为 draft，SDD/ARCH 仍为 proposed，正式 R1-A 全量验收和真实课题 UAT 尚待确认。</p>
+</section><section class="chapter"><h2 id="sec-044">本轮 R1-A 状态同步（2026-08-29）</h2>
+<p>当前版本新增了 68 个工作包的版本化模板与人工指导型总 Skill 资产、课题 68 条流程快照、人工状态命令与版本冲突保护、模板产物、日志导入批次、基础 ReportModel、真实图片路径校验以及 PM/架构师宿主不可用时的文档候选降级链。R1-A 仍未完成正式验收：真实 Agent Port、SRS 冻结后的 SDD/ARCH 双候选联合追踪与三文档原子应用、正式 PPTX 图片排版、完整报告作者确认 UI、投影故障注入和全部 QUAL-001～QUAL-007 证据仍待补齐；因此本手册不得将当前状态描述为 R1-A 全部通过。</p>
+</section><section class="chapter"><h2 id="sec-045">首页主工作台（当前实现）</h2>
+<p>启动服务后访问 <code>/</code>。首页使用科研工作分解与每周组会模板的深蓝侧栏、橙色强调和两栏布局，提供 8 个科研方面、完整 68 个工作包卡片、即时搜索、方面筛选、命中计数、空态、默认详情面板以及目标/新增认识/关键证据/当前问题/下周行动字段。卡片选择、草稿保存/恢复/清空、复制成功/失败、键盘焦点、减少动态效果和移动端布局都有明确反馈。侧栏可进入课题、周计划、报告、Skills、治理和运维；服务端渲染保证无 JavaScript 时仍可点击工作包详情、提交搜索表单、填写业务表单并进入周报页面。页面不加载 CDN，适合离线使用。</p>
+<h3 id="sec-046">下一步建议语义</h3>
+<p>系统依据每个工作包自己的版本化 <code>next_step_definition</code> 生成建议，包含变量、控制条件、预期产物、支持/否定标准、风险和停止条件。实验工作包返回 Experiment，非实验工作包返回 WorkAction；只有作者明确停止、六项完成门通过、存在有效证据和阶段事件且没有缺口时才返回 CompletionSuggested。</p>
+<h3 id="sec-047">文档治理候选</h3>
+<p>候选文档保存版本、正文和内容哈希，并抽取 FR/DATA/MOD/API/QUAL 等稳定 ID。联合校验结果包含缺失 ID、差异和追踪矩阵；候选必须通过校验并批准后才能原子应用，基线发生变化时会拒绝写入。需求/工程日志投影只维护 <code>BEGIN/END SCIENCERESEARCH PROJECTION</code> 区块，区块外人工内容保持不变；投影 outbox 保存 expected base hash、事件 hash和文件 hash，发现人工修改时返回 <code>PROJECTION_CONFLICT</code>，不覆盖原文件，恢复原基线后可重试。</p>
+</section><section class="chapter"><h2 id="sec-048">20260830 成效卡与工作包完成</h2>
+<blockquote>
+<p>浏览器证据状态（2026-08-31）：PASS（Microsoft Edge）。本轮以 <code>python serve.py --port 8789 --data-dir output/playwright/r59-data</code> 启动隔离服务，并使用 Playwright CLI <code>--browser msedge</code> 完成 Context 创建、8 方面/68 WP 主从目录、WP 选择详情、搜索筛选、成效卡创建、完成/取消和 900px/390×844 响应式复核；console 最终为 0 errors / 0 warnings，<code>favicon.ico</code> 返回 204。实际结果图为 <code>output/playwright/r59-isolated-contexts.png</code>、<code>r59-isolated-context-detail.png</code>、<code>r59-isolated-completed.png</code>、<code>r59-isolated-cancelled.png</code>，均来自显式隔离数据目录，图例应标注视口、时间、Context/WP/Card 标识和 FR/QUAL 对应关系。</p>
+</blockquote>
+<p>在 <code>/contexts/&lt;context-id&gt;</code> 打开课题后，页面显示当前课题独立的 8 个方面/68 个工作包卡片。每个工作包可直接点击“添加成效卡”，填写日期、事件名称和描述；卡片支持多张并显示空态。成效卡可上传 PDF、Markdown、DOCX、PPTX 以及 DOC/PPT/ZIP/7Z/RAR 文件；同一张卡中原始文件名（忽略大小写）重复时会提示且不会覆盖，压缩包仅下载不解压。PDF 在浏览器中预览，Markdown、DOCX、PPTX 使用安全提取预览，预览失败仍可下载原文件。</p>
+<p>工作包的“标记完成”与“取消完成”是普通按钮，不需要填写原因，也不受六项完成门阻断。完成显示浅绿色；未完成但存在成效卡显示浅黄色；未完成且没有成效卡保持原色，并同时显示文字状态。删除成效卡或附件不会自动取消工作包完成状态。</p>
+<p>图例：本节描述 20260830 成效卡垂直切片的实际操作契约；本轮真实 Edge 截图已补入 <code>output/playwright/r59-*.png</code>，对应 Context 主从、成效卡创建、完成状态、搜索和移动视口链路。</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>R59 隔离运行的 Context 创建结果</span><code>../output/playwright/r59-isolated-contexts.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 8-5：动作=创建 Context；预期=生成 8 个方面和 68 个工作包；实际=Edge 隔离运行创建成功；对应 FR-006、FR-007、QUAL-016；环境=Microsoft Edge，<code>8789</code> 端口，隔离数据目录 <code>output/playwright/r59-data</code>，时间=2026-08-31。</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>R59 隔离运行的工作包详情</span><code>../output/playwright/r59-isolated-context-detail.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 8-6：动作=选择 WP-001；预期=右侧只显示唯一详情面板及成效卡入口；实际=详情、完成按钮和附件入口可见；对应 FR-057～FR-065；环境=Microsoft Edge 900px，隔离数据目录，时间=2026-08-31。</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>R59 隔离运行的完成状态</span><code>../output/playwright/r59-isolated-completed.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 8-7：动作=点击“标记完成”；预期=工作包变为已完成且显示浅绿色；实际=按钮变为“取消完成”，列表显示已完成；对应 FR-061～FR-063、QUAL-016；环境=Microsoft Edge，隔离数据目录，时间=2026-08-31。</p>
+<div class="evidence-gap"><strong>缺少截图文件</strong><span>R59 隔离运行的取消完成状态</span><code>../output/playwright/r59-isolated-cancelled.png</code><span>本教学页不使用无关图片替代；请以仓库中实际存在的证据或当前隔离运行为准。</span></div>
+<p>图例 8-8：动作=点击“取消完成”；预期=恢复未完成状态且保留成效卡影响；实际=按钮恢复“标记完成”，状态回到可继续操作；对应 FR-061～FR-063；环境=Microsoft Edge，隔离数据目录，时间=2026-08-31。</p>
+<h3 id="sec-049">20260831 v2/v3/v4 实现状态补充</h3>
+<p>当前已实际可用：Context 工作包卡片、成效卡新增/删除、附件上传/下载/移除、同卡重名拦截、上传设置、工作包完成/取消、Markdown 及文本型 DOCX/PPTX 预览接口、PDF inline 预览接口。Microsoft Edge 已完成 1440px 与 390×844 真实视口复核；附件上传/预览/下载/移除和 OOXML 嵌图 DTO/受控图片路由已有自动化/HTTP 契约证据，仍建议在具备实际样例文件时补充一次人工浏览器复核。DOC/PPT/ZIP/7Z/RAR 为仅下载，压缩包不自动解压。</p>
+<p>图例：实现状态补充；Edge 截图证据标注为当前隔离运行结果，API/自动化证据与浏览器视觉证据分开记录，不以历史演示图片替代当前验收。</p>
+<h3 id="sec-050">Schema v4 迁移与只读状态补充说明</h3>
+<p>启动时系统会校验唯一业务库的 schema v4 迁移账本。<code>schema_migrations</code> 使用
+<code>STARTED → APPLIED/FAILED</code> 状态机，记录迁移名称、版本、规范化 DDL/索引/触发器
+校验和及错误信息；启动中断会在下一次启动时恢复检查。发现未来版本、校验和不一致、
+<code>quick_check</code>/外键检查失败，或关键索引、触发器缺失时，系统保持 <code>ReadOnly/NotReady</code>，
+不会自动修复或继续开放写入。遇到该状态应保留数据库和 <code>backups/migrations/</code> 下的
+迁移前备份，查看健康检查错误后恢复备份或完成经批准的迁移，不要手工修改账本。</p>
+
+</section></main></div>
+<footer class="page-footer"><div class="footer-inner"><p>科研工作台教学手册 · 2026-09-16 · 依据用户手册 v1.1-E10</p><p><a href="#main">回到顶部</a></p></div></footer>
+</body></html>
