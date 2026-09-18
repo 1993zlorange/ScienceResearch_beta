@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
   Runs, stops, inspects, or cleans the ScienceResearch target stack.
 .DESCRIPTION
@@ -9,6 +9,10 @@
   docker or local-isolated. docker is the default; no silent fallback is performed.
 .PARAMETER DependencySyncMode
   local-isolated only: locked (default) or offline. Both use uv.lock; offline adds uv --offline.
+.PARAMETER ForceRestart
+  Stop this script-managed running stack before up. Local runs rebuild; Docker retains volumes but recreates services.
+.PARAMETER WebBindAddress
+  IPv4 address used by the local Nginx listener. Defaults to loopback. Use a host LAN address for explicit LAN exposure; PostgreSQL and FastAPI remain on 127.0.0.1.
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File scripts/deploy_target_stack.ps1
 .EXAMPLE
@@ -53,7 +57,12 @@ param(
     [switch]$RemoveIsolatedData,
 
     [ValidateSet('locked', 'offline')]
-    [string]$DependencySyncMode = 'locked'
+    [string]$DependencySyncMode = 'locked',
+
+    [switch]$ForceRestart,
+
+    [ValidatePattern('^(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)$')]
+    [string]$WebBindAddress = '127.0.0.1'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -102,10 +111,13 @@ function Resolve-PostgresTool {
 }
 
 function Test-TcpPortOpen {
-    param([Parameter(Mandatory = $true)][int]$Port)
+    param(
+        [Parameter(Mandatory = $true)][int]$Port,
+        [Parameter(Mandatory = $false)][string]$Address = '127.0.0.1'
+    )
     $client = [System.Net.Sockets.TcpClient]::new()
     try {
-        $task = $client.ConnectAsync('127.0.0.1', $Port)
+        $task = $client.ConnectAsync($Address, $Port)
         if ($task.Wait(250) -and $client.Connected) {
             return $true
         }
@@ -117,11 +129,23 @@ function Test-TcpPortOpen {
 }
 
 function Assert-PortsAvailable {
-    foreach ($port in @($PostgresPort, $ApiPort, $WebPort)) {
-        if (Test-TcpPortOpen -Port $port) {
-            Stop-WithContract -ExitCode 4 -Message ("Port {0} is already in use. The script does not stop processes that it did not create." -f $port)
+    $portChecks = @(
+        @{ Address = '127.0.0.1'; Port = $PostgresPort },
+        @{ Address = '127.0.0.1'; Port = $ApiPort },
+        @{ Address = $WebBindAddress; Port = $WebPort }
+    )
+    foreach ($check in $portChecks) {
+        if (Test-TcpPortOpen -Address $check.Address -Port $check.Port) {
+            Stop-WithContract -ExitCode 4 -Message ("Port {0} is already in use on {1}. The script does not stop processes that it did not create." -f $check.Port, $check.Address)
         }
     }
+}
+
+function Get-WebDisplayAddress {
+    if ($WebBindAddress -eq '0.0.0.0') {
+        return '127.0.0.1'
+    }
+    return $WebBindAddress
 }
 
 function Invoke-Tool {
@@ -242,6 +266,105 @@ function Test-ProcessAlive {
     }
 }
 
+function Get-TcpListenerProcessId {
+    param(
+        [Parameter(Mandatory = $true)][string]$Address,
+        [Parameter(Mandatory = $true)][int]$Port
+    )
+    try {
+        $listener = Get-NetTCPConnection -LocalAddress $Address -LocalPort $Port -State Listen -ErrorAction Stop |
+            Select-Object -First 1
+        if ($null -ne $listener -and $listener.OwningProcess) {
+            return [int]$listener.OwningProcess
+        }
+    }
+    catch {
+    }
+    return $null
+}
+
+function Wait-TcpListener {
+    param(
+        [Parameter(Mandatory = $true)][string]$Address,
+        [Parameter(Mandatory = $true)][int]$Port,
+        [int]$TimeoutSeconds = 30
+    )
+    $deadline = [DateTimeOffset]::UtcNow.AddSeconds($TimeoutSeconds)
+    do {
+        $pidValue = Get-TcpListenerProcessId -Address $Address -Port $Port
+        if ($pidValue) {
+            return $pidValue
+        }
+        Start-Sleep -Milliseconds 250
+    } while ([DateTimeOffset]::UtcNow -lt $deadline)
+    Stop-WithContract -ExitCode 6 -Message ("Timed out waiting for listener {0}:{1}." -f $Address, $Port)
+}
+
+function Test-ManagedProcessIdentity {
+    param(
+        [Parameter(Mandatory = $true)][int]$ProcessId,
+        [Parameter(Mandatory = $true)][string]$ExpectedProcessName,
+        [Parameter(Mandatory = $true)][string[]]$RequiredCommandLinePatterns,
+        [Parameter(Mandatory = $false)][string]$RequiredPath
+    )
+    try {
+        $process = Get-CimInstance Win32_Process -Filter "ProcessId=$ProcessId" -ErrorAction Stop
+    }
+    catch {
+        return $false
+    }
+    if ($null -eq $process -or $process.Name -notlike $ExpectedProcessName) {
+        return $false
+    }
+    $commandLine = [string]$process.CommandLine
+    foreach ($pattern in $RequiredCommandLinePatterns) {
+        if ($commandLine -notlike "*$pattern*") {
+            return $false
+        }
+    }
+    if (-not [string]::IsNullOrWhiteSpace($RequiredPath)) {
+        $normalizedRequiredPath = $RequiredPath.Replace('/', '\')
+        $normalizedCommandLine = $commandLine.Replace('/', '\')
+        if ($normalizedCommandLine -notlike "*$normalizedRequiredPath*") {
+            return $false
+        }
+    }
+    return $true
+}
+
+function Get-DescendantProcessIds {
+    param([Parameter(Mandatory = $true)][int]$ProcessId)
+    $descendants = New-Object System.Collections.Generic.List[int]
+    $queue = New-Object System.Collections.Generic.Queue[int]
+    $queue.Enqueue($ProcessId)
+    $visited = New-Object 'System.Collections.Generic.HashSet[int]'
+    [void]$visited.Add($ProcessId)
+    while ($queue.Count -gt 0) {
+        $current = $queue.Dequeue()
+        $children = Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object { $_.ParentProcessId -eq $current }
+        foreach ($child in $children) {
+            $childId = [int]$child.ProcessId
+            if ($visited.Add($childId)) {
+                $descendants.Add($childId)
+                $queue.Enqueue($childId)
+            }
+        }
+    }
+    return $descendants
+}
+
+function Stop-ProcessTree {
+    param([Parameter(Mandatory = $true)][int]$ProcessId)
+    if (-not (Test-ProcessAlive -ProcessId $ProcessId)) {
+        return
+    }
+    $descendants = @(Get-DescendantProcessIds -ProcessId $ProcessId)
+    for ($index = $descendants.Count - 1; $index -ge 0; $index--) {
+        Stop-Process -Id $descendants[$index] -Force -ErrorAction SilentlyContinue
+    }
+    Stop-Process -Id $ProcessId -Force -ErrorAction SilentlyContinue
+}
+
 function Wait-HttpEndpoint {
     param(
         [Parameter(Mandatory = $true)][string]$Uri,
@@ -291,6 +414,7 @@ function Write-RuntimeEnv {
     $metadata = [ordered]@{
         mode = $Mode
         command = $Command
+        web_bind_address = $WebBindAddress
         web_port = $WebPort
         api_port = $ApiPort
         postgres_port = $PostgresPort
@@ -337,6 +461,18 @@ function New-LocalNginxConfig {
     else {
         'types { text/html html htm; text/css css; application/javascript js mjs; application/json json; image/svg+xml svg; }'
     }
+    $additionalLoopbackListen = if ($WebBindAddress -ne '127.0.0.1') {
+        "        listen 127.0.0.1:$WebPort;"
+    }
+    else {
+        ''
+    }
+    $serverNames = if ($WebBindAddress -eq '127.0.0.1') {
+        '127.0.0.1'
+    }
+    else {
+        "$WebBindAddress 127.0.0.1"
+    }
     $config = @"
 worker_processes 1;
 pid "$($Directory.Replace('\','/'))/nginx.pid";
@@ -347,8 +483,9 @@ http {
     $includeMime
     access_log "$($Directory.Replace('\','/'))/nginx-access.log";
     server {
-        listen 127.0.0.1:$WebPort;
-        server_name 127.0.0.1;
+        listen ${WebBindAddress}:$WebPort;
+$additionalLoopbackListen
+        server_name $serverNames;
         root "$webRoot";
         index index.html;
         client_max_body_size 100m;
@@ -401,15 +538,30 @@ function Stop-LocalStack {
         return
     }
     $nginxExecutable = Resolve-ExecutablePath -Value $NginxPath -ToolName 'nginx'
-    $nginxAlive = $state.pids.nginx -and (Test-ProcessAlive -ProcessId ([int]$state.pids.nginx))
-    if ($nginxAlive -and (Test-Path -LiteralPath (Join-Path $Directory 'nginx.conf') -PathType Leaf)) {
+    $nginxLauncherMatches = $state.pids.nginx -and (Test-ManagedProcessIdentity -ProcessId ([int]$state.pids.nginx) -ExpectedProcessName 'nginx*.exe' -RequiredCommandLinePatterns @('nginx.conf') -RequiredPath $Directory)
+    if ($nginxLauncherMatches -and (Test-Path -LiteralPath (Join-Path $Directory 'nginx.conf') -PathType Leaf)) {
         & $nginxExecutable -p $Directory -c nginx.conf -s quit 2>$null
         if ($LASTEXITCODE -ne 0 -and (Test-ProcessAlive -ProcessId ([int]$state.pids.nginx))) {
-            Stop-Process -Id ([int]$state.pids.nginx) -Force -ErrorAction SilentlyContinue
+            Stop-ProcessTree -ProcessId ([int]$state.pids.nginx)
         }
     }
-    if ($state.pids.api -and (Test-ProcessAlive -ProcessId ([int]$state.pids.api))) {
-        Stop-Process -Id ([int]$state.pids.api) -Force -ErrorAction SilentlyContinue
+    $managedProcessIds = @()
+    if ($state.pids.api -and (Test-ManagedProcessIdentity -ProcessId ([int]$state.pids.api) -ExpectedProcessName 'python*.exe' -RequiredCommandLinePatterns @('scienceresearch.main:create_app', ('--port {0}' -f $ApiPort)))) {
+        $managedProcessIds += [int]$state.pids.api
+    }
+    if ($nginxLauncherMatches) {
+        $managedProcessIds += [int]$state.pids.nginx
+    }
+    if ($state.listener_pids.api -and (Test-ManagedProcessIdentity -ProcessId ([int]$state.listener_pids.api) -ExpectedProcessName 'python*.exe' -RequiredCommandLinePatterns @('scienceresearch.main:create_app', ('--port {0}' -f $ApiPort)))) {
+        $managedProcessIds += [int]$state.listener_pids.api
+    }
+    if ($state.listener_pids.nginx -and (Test-ManagedProcessIdentity -ProcessId ([int]$state.listener_pids.nginx) -ExpectedProcessName 'nginx*.exe' -RequiredCommandLinePatterns @('nginx.conf') -RequiredPath $Directory)) {
+        $managedProcessIds += [int]$state.listener_pids.nginx
+    }
+    foreach ($managedPid in $managedProcessIds | Select-Object -Unique) {
+        if (Test-ProcessAlive -ProcessId $managedPid) {
+            Stop-ProcessTree -ProcessId $managedPid
+        }
     }
     $pgCtl = Resolve-PostgresTool -ToolName 'pg_ctl'
     $dataDirectory = Join-Path $Directory 'postgres-data'
@@ -479,16 +631,22 @@ function Invoke-DockerCommand {
     Invoke-Tool -FilePath $docker -ArgumentList @('compose', 'version') -Activity 'Check Docker Compose CLI'
     switch ($Command) {
         'up' {
+            if ($ForceRestart) {
+                Invoke-DockerStack -Action 'down'
+            }
             $directory = Get-DockerRunDirectory
             $postgresPassword = Get-RequiredPostgresPassword
             $previousWebPort = $env:SCIENCERESEARCH_WEB_PORT
+            $previousWebBindAddress = $env:SCIENCERESEARCH_WEB_BIND_ADDRESS
             $previousPassword = $env:POSTGRES_PASSWORD
             $env:SCIENCERESEARCH_WEB_PORT = [string]$WebPort
+            $env:SCIENCERESEARCH_WEB_BIND_ADDRESS = $WebBindAddress
             $env:POSTGRES_PASSWORD = $postgresPassword
             try {
                 Invoke-DockerStack -Action 'up'
-                $healthUri = "http://127.0.0.1:{0}/healthz" -f $WebPort
-                $readyUri = "http://127.0.0.1:{0}/readyz" -f $WebPort
+                $webProbeHost = if ($WebBindAddress -eq '0.0.0.0') { '127.0.0.1' } else { $WebBindAddress }
+                $healthUri = "http://{0}:{1}/healthz" -f $webProbeHost, $WebPort
+                $readyUri = "http://{0}:{1}/readyz" -f $webProbeHost, $WebPort
                 [void](Wait-HttpEndpoint -Uri $healthUri -Label 'Docker web health')
                 [void](Wait-HttpEndpoint -Uri $readyUri -Label 'Docker application readiness')
                 $state = [ordered]@{
@@ -497,7 +655,8 @@ function Invoke-DockerCommand {
                     command = 'up'
                     status = 'running'
                     compose_project = $composeProject
-                    web_url = "http://127.0.0.1:{0}/" -f $WebPort
+                    web_bind_address = $WebBindAddress
+                    web_url = "http://{0}:{1}/" -f (Get-WebDisplayAddress), $WebPort
                     health_url = $healthUri
                     ready_url = $readyUri
                     created_at_utc = [DateTimeOffset]::UtcNow.ToString('o')
@@ -508,6 +667,7 @@ function Invoke-DockerCommand {
             }
             finally {
                 if ($null -ne $previousWebPort) { $env:SCIENCERESEARCH_WEB_PORT = $previousWebPort } else { Remove-Item Env:SCIENCERESEARCH_WEB_PORT -ErrorAction SilentlyContinue }
+                if ($null -ne $previousWebBindAddress) { $env:SCIENCERESEARCH_WEB_BIND_ADDRESS = $previousWebBindAddress } else { Remove-Item Env:SCIENCERESEARCH_WEB_BIND_ADDRESS -ErrorAction SilentlyContinue }
                 if ($null -ne $previousPassword) { $env:POSTGRES_PASSWORD = $previousPassword } else { Remove-Item Env:POSTGRES_PASSWORD -ErrorAction SilentlyContinue }
             }
         }
@@ -599,7 +759,11 @@ function Invoke-LocalCommand {
             }
             $statePath = Get-StatePath -Directory $selectedDirectory
             $existingState = Read-State -Path $statePath
-            if ($null -ne $existingState -and $existingState.status -eq 'running') {
+            if ($null -ne $existingState -and $existingState.status -eq 'running' -and $ForceRestart) {
+                Stop-LocalStack -Directory $selectedDirectory
+                $existingState = $null
+            }
+            elseif ($null -ne $existingState -and $existingState.status -eq 'running') {
                 $apiAlive = $existingState.pids.api -and (Test-ProcessAlive -ProcessId ([int]$existingState.pids.api))
                 $nginxAlive = $existingState.pids.nginx -and (Test-ProcessAlive -ProcessId ([int]$existingState.pids.nginx))
                 if ($apiAlive -and $nginxAlive) {
@@ -631,7 +795,9 @@ function Invoke-LocalCommand {
                 psql_tool = 'resolved-at-start'
                 nginx_tool = 'resolved-at-start'
                 pids = [ordered]@{ api = $null; nginx = $null }
-                web_url = "http://127.0.0.1:{0}/" -f $WebPort
+                listener_pids = [ordered]@{ api = $null; nginx = $null }
+                web_bind_address = $WebBindAddress
+                web_url = "http://{0}:{1}/" -f (Get-WebDisplayAddress), $WebPort
                 created_at_utc = [DateTimeOffset]::UtcNow.ToString('o')
             }
             Write-JsonFile -Path $statePath -Value $bootstrapState
@@ -665,21 +831,24 @@ function Invoke-LocalCommand {
                 $nginxConfig = New-LocalNginxConfig -Directory $selectedDirectory -NginxExecutable $nginx
                 if ($WhatIfPreference) {
                     Write-Host ("What if: start FastAPI on 127.0.0.1:{0}" -f $ApiPort)
-                    Write-Host ("What if: start Nginx on 127.0.0.1:{0}" -f $WebPort)
+                    Write-Host ("What if: start Nginx on {0}:{1}" -f $WebBindAddress, $WebPort)
                 }
                 else {
                     $apiPython = Join-Path $projectRoot '.venv/Scripts/python.exe'
                     if (-not (Test-Path -LiteralPath $apiPython -PathType Leaf)) { throw 'Locked Python virtual environment was not found after dependency synchronization.' }
                     $apiProcess = Start-Process -FilePath $apiPython -ArgumentList @('-m', 'uvicorn', 'scienceresearch.main:create_app', '--factory', '--host', '127.0.0.1', '--port', [string]$ApiPort) -WorkingDirectory $projectRoot -WindowStyle Hidden -RedirectStandardOutput $apiStdout -RedirectStandardError $apiStderr -PassThru
                     $bootstrapState.pids.api = $apiProcess.Id
+                    $bootstrapState.listener_pids.api = Wait-TcpListener -Address '127.0.0.1' -Port $ApiPort
                     Write-JsonFile -Path $statePath -Value $bootstrapState
                     $nginxProcess = Start-Process -FilePath $nginx -ArgumentList @('-p', $selectedDirectory, '-c', 'nginx.conf') -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru
                     $bootstrapState.pids.nginx = $nginxProcess.Id
+                    $bootstrapState.listener_pids.nginx = Wait-TcpListener -Address $WebBindAddress -Port $WebPort
                     $bootstrapState.status = 'running'
                     Write-JsonFile -Path $statePath -Value $bootstrapState
                 }
-                $healthUri = "http://127.0.0.1:{0}/healthz" -f $WebPort
-                $readyUri = "http://127.0.0.1:{0}/readyz" -f $WebPort
+                $webProbeHost = if ($WebBindAddress -eq '0.0.0.0') { '127.0.0.1' } else { $WebBindAddress }
+                $healthUri = "http://{0}:{1}/healthz" -f $webProbeHost, $WebPort
+                $readyUri = "http://{0}:{1}/readyz" -f $webProbeHost, $WebPort
                 [void](Wait-HttpEndpoint -Uri $healthUri -Label 'local Nginx health proxy')
                 [void](Wait-HttpEndpoint -Uri $readyUri -Label 'local FastAPI and PostgreSQL readiness')
                 $healthEvidence = [ordered]@{

@@ -7,7 +7,7 @@
     "apps/web"
   ],
   "scripts": {
-    "dev": "npm --workspace apps/web run dev",
+    "dev": "npm run docs:prepare && npm --workspace apps/web run dev",
     "build": "npm run docs:build && npm --workspace apps/web run build",
     "contracts:generate": "npm run contracts:openapi && openapi-typescript packages/contracts/scienceresearch.openapi.json --output packages/contracts/scienceresearch-api.ts",
     "check": "npm --workspace apps/web run typecheck",
@@ -16,6 +16,7 @@
     "contracts:openapi": "uv run python scripts/export_openapi.py",
     "contracts:verify": "npm run contracts:generate && git diff --exit-code -- packages/contracts",
     "docs:build": "python scripts/build_technical_manuals.py --project-root .",
-    "docs:check": "python scripts/build_technical_manuals.py --project-root . --check"
+    "docs:check": "python scripts/build_technical_manuals.py --project-root . --check",
+    "docs:prepare": "python scripts/build_technical_manuals.py --project-root . --reuse-existing"
   }
 }

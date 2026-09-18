@@ -3,7 +3,7 @@
   "connection_check": {},
   "history": [
     {
-      "changed_at": "2026-09-17T11:27:07.774798+08:00",
+      "changed_at": "2026-09-18T18:39:10.387715+08:00",
       "changed_by": "release-candidate",
       "fields": [
         "upload_limits",
@@ -22,7 +22,7 @@
   },
   "revision": 1,
   "schema_version": 2,
-  "updated_at": "2026-09-17T11:27:07.774798+08:00",
+  "updated_at": "2026-09-18T18:39:10.387715+08:00",
   "updated_by": "release-candidate",
   "upload_limits": {
     "allowed_extensions": [

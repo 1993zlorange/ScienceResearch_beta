@@ -118,8 +118,8 @@ export function useAchievementAttachmentUploadMutation() {
       requestId: input.requestId,
       idempotencyKey: input.idempotencyKey,
     }),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['context'] })
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['context'] })
     },
   })
 }

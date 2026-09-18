@@ -22,18 +22,37 @@ def _as_bool(value: object) -> bool:
     return value is True or (isinstance(value, str) and value.strip().lower() in {"1", "true", "yes", "on"})
 
 
+_PROJECT_ROOT = Path(__file__).resolve().parents[4]
+_DEFAULT_NAVIGATION_ITEMS = (
+    ("home", "/", "总览"),
+    ("technical-docs", "/technical-docs", "技术说明"),
+    ("contexts", "/contexts", "课题流程"),
+    ("weeks", "/weeks", "周计划"),
+    ("reports", "/reports", "报告与成效卡"),
+    ("skills", "/skills", "Skills"),
+    ("governance", "/governance", "治理"),
+    ("operations", "/operations", "运维"),
+)
+
+
+def _navigation_items() -> tuple[tuple[str, str, str], ...]:
+    """Load the same top-level navigation contract used by the Vue shell."""
+
+    config_path = _PROJECT_ROOT / "config" / "main-navigation.json"
+    try:
+        raw = json.loads(config_path.read_text(encoding="utf-8"))
+        items = tuple(
+            (str(item["id"]), str(item["path"]), str(item["label"]))
+            for item in raw["items"]
+            if item.get("path") != "/work-packages"
+        )
+        return items if items else _DEFAULT_NAVIGATION_ITEMS
+    except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError):
+        return _DEFAULT_NAVIGATION_ITEMS
+
+
 def shell(title: str, body: str, active: str = "home") -> str:
-    nav_items = (
-        ("home", "/", "总览"),
-        ('technical-docs', '/technical-docs', '技术说明'),
-        ("work-packages", "/work-packages", "工作包目录"),
-        ("contexts", "/contexts", "课题流程"),
-        ("weeks", "/weeks", "周计划"),
-        ("reports", "/reports", "报告与成效卡"),
-        ("skills", "/skills", "Skills"),
-        ("governance", "/governance", "治理"),
-        ("operations", "/operations", "运维"),
-    )
+    nav_items = _navigation_items()
     links = []
     for key, href, label in nav_items:
         current = key == active
@@ -48,7 +67,7 @@ def shell(title: str, body: str, active: str = "home") -> str:
 @media(max-width:600px){.top{display:block}.actions{margin-top:15px}.summary{grid-template-columns:1fr}.task-list,.builder-grid,.grid{grid-template-columns:1fr}.panel-head{display:block}.directory-tools{grid-template-columns:1fr}.filter-meta{align-items:flex-start;flex-direction:column}.btn,button,input,textarea,select{max-width:100%}table{display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}.builder-actions>*{flex:1 1 100%}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
 """
-    return f"<!doctype html><html lang='zh-CN'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>{html.escape(title)}</title><style>{css}</style></head><body><a class='skip-link' href='#main-content'>跳到主要内容</a><div class='shell'><aside class='side'><div class='brand'>科研工作台<small>科研工作分解 · 每周组会</small></div><div class='side-note'>问题 → 行动 → 证据 → 结论 → 下一步<br>离线运行 · 作者确认优先</div>{nav}</aside><main class='main' id='main-content' tabindex='-1'><header class='top'><div><div class='eyebrow'>WEEKLY RESEARCH REVIEW</div><h1>科研工作分解与组会汇报</h1><p>8 个科研方面 · 68 个可执行工作包 · 证据优先</p></div><div class='actions'><a class='btn primary' href='/work-packages'>浏览工作包</a><a class='btn' href='/reports'>生成周报</a></div></header>{body}</main></div></body></html>"
+    return f"<!doctype html><html lang='zh-CN'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>{html.escape(title)}</title><style>{css}</style></head><body><a class='skip-link' href='#main-content'>跳到主要内容</a><div class='shell'><aside class='side'><div class='brand'>科研工作台<small>科研工作分解 · 每周组会</small></div><div class='side-note'>问题 → 行动 → 证据 → 结论 → 下一步<br>离线运行 · 作者确认优先</div>{nav}</aside><main class='main' id='main-content' tabindex='-1'><header class='top'><div><div class='eyebrow'>WEEKLY RESEARCH REVIEW</div><h1>科研工作分解与组会汇报</h1><p>8 个科研方面 · 68 个可执行工作包 · 证据优先</p></div><div class='actions'><a class='btn primary' href='/contexts'>进入课题流程</a><a class='btn' href='/reports'>生成周报</a></div></header>{body}</main></div></body></html>"
 
 def page(app: ResearchWorkbench) -> str:
     catalog = app.catalog()

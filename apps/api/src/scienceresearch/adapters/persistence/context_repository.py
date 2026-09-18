@@ -1,10 +1,11 @@
-﻿"""SQLAlchemy 2 repository for the P2A native context slice."""
+"""SQLAlchemy 2 repository for the P2A native context slice."""
 
 from __future__ import annotations
 
 import hashlib
 import html
 import json
+import re
 import secrets
 import shutil
 import zipfile
@@ -429,7 +430,7 @@ class PostgresContextRepository:
             raise AppError("ATTACHMENT_INTEGRITY", "attachment size or hash mismatch", 409)
         extension = Path(attachment.original_name).suffix.lower()
         if extension in {".md", ".markdown"}:
-            body = html.escape(data.decode("utf-8", errors="replace")).replace("\n", "<br>")
+            body = _render_markdown(data.decode("utf-8", errors="replace"))
             return AttachmentContent(
                 _preview_document(attachment.original_name, body).encode("utf-8"),
                 "text/html; charset=utf-8",
@@ -762,9 +763,7 @@ class PostgresContextRepository:
 
         archive_relative = f"archived-contexts/{operation.operation_id}" if operation.retain_files else None
         trash_relative = f"trash/{operation.operation_id}" if not operation.retain_files else None
-        staging = self._artifact_path(
-            (archive_relative or trash_relative or "") + "/.saga-staging"
-        )
+        staging = self._artifact_path((archive_relative or trash_relative or "") + "/.saga-staging")
         final_root = self._artifact_path(archive_relative or trash_relative or "")
         self._stage_deletion_files(manifest, staging, final_root)
         now = datetime.now(UTC)
@@ -819,7 +818,9 @@ class PostgresContextRepository:
                         )
                     )
                 outbox_path = archive_relative or trash_relative or ""
-                outbox_id = f"OUT-{hashlib.sha256(f'context-delete:{operation.operation_id}'.encode()).hexdigest()[:24]}"
+                outbox_id = (
+                    f"OUT-{hashlib.sha256(f'context-delete:{operation.operation_id}'.encode()).hexdigest()[:24]}"
+                )
                 if session.get(AchievementFileOutboxRecord, outbox_id) is None:
                     session.add(
                         AchievementFileOutboxRecord(
@@ -885,10 +886,14 @@ class PostgresContextRepository:
                 raise AppError("NOT_FOUND", "deletion operation not found", 404)
             if operation.context_id != command.context_id:
                 raise AppError("OWNERSHIP_MISMATCH", "deletion ticket does not belong to this context", 403)
-            if operation.session_id != command.session_id or operation.confirmation_nonce_hash != hashlib.sha256(
-                f"{command.session_id}:{command.confirmation}".encode()
-            ).hexdigest():
-                raise AppError("DELETE_CONFIRMATION_INVALID", "deletion ticket is invalid or bound to another session", 403)
+            if (
+                operation.session_id != command.session_id
+                or operation.confirmation_nonce_hash
+                != hashlib.sha256(f"{command.session_id}:{command.confirmation}".encode()).hexdigest()
+            ):
+                raise AppError(
+                    "DELETE_CONFIRMATION_INVALID", "deletion ticket is invalid or bound to another session", 403
+                )
             if operation.state in {"FAILED", "ROLLED_BACK"}:
                 raise AppError("DELETE_TICKET_INVALID", "deletion must be prepared again", 409)
             if operation.state == "PREPARED" and (
@@ -903,13 +908,22 @@ class PostgresContextRepository:
                     raise AppError("NOT_FOUND", "context not found", 404)
                 if context_record.row_version != operation.context_version:
                     raise AppError("VERSION_CONFLICT", "context changed; prepare deletion again", 409)
-                manifest = _deletion_manifest(context_record.id, context_record.name, context_record.row_version, session)
+                manifest = _deletion_manifest(
+                    context_record.id, context_record.name, context_record.row_version, session
+                )
                 if _canonical_digest(manifest) != operation.manifest_digest:
                     raise AppError("MANIFEST_CHANGED", "deletion snapshot changed; prepare again", 409)
             else:
                 stored = operation.file_manifest_json
                 manifest = dict(stored) if isinstance(stored, dict) else {}
-            return operation, manifest, operation.context_id, str((operation.file_manifest_json or {}).get("context_name", "")), operation.context_version, operation.retain_files
+            return (
+                operation,
+                manifest,
+                operation.context_id,
+                str((operation.file_manifest_json or {}).get("context_name", "")),
+                operation.context_version,
+                operation.retain_files,
+            )
 
     def _refresh_operation(
         self,
@@ -1004,13 +1018,13 @@ class PostgresContextRepository:
             if record is not None:
                 record.state = "CLEANUP_PENDING"
                 record.error_code = code
-                record.error_detail=detail
+                record.error_detail = detail
                 record.updated_at = now
             outbox_id = f"OUT-{hashlib.sha256(f'context-delete:{operation_id}'.encode()).hexdigest()[:24]}"
             outbox = session.get(AchievementFileOutboxRecord, outbox_id)
             if outbox is not None:
                 outbox.status = "PENDING"
-                outbox.error=code
+                outbox.error = code
 
     def _stage_deletion_files(
         self,
@@ -1060,19 +1074,43 @@ class PostgresContextRepository:
     def _delete_context_rows(self, session: Session, context_id: str) -> None:
         workflow_ids = select(WorkflowRecord.id).where(WorkflowRecord.context_id == context_id).scalar_subquery()
         session.execute(delete(ArtifactRecord).where(ArtifactRecord.context_id == context_id))
-        session.execute(delete(WorkflowCompletionEventRecord).where(WorkflowCompletionEventRecord.context_id == context_id))
+        session.execute(
+            delete(WorkflowCompletionEventRecord).where(WorkflowCompletionEventRecord.context_id == context_id)
+        )
         session.execute(delete(AchievementCardEventRecord).where(AchievementCardEventRecord.context_id == context_id))
-        session.execute(delete(AchievementAttachmentRecord).where(AchievementAttachmentRecord.card_id.in_(select(AchievementCardRecord.id).where(AchievementCardRecord.context_id == context_id))))
+        session.execute(
+            delete(AchievementAttachmentRecord).where(
+                AchievementAttachmentRecord.card_id.in_(
+                    select(AchievementCardRecord.id).where(AchievementCardRecord.context_id == context_id)
+                )
+            )
+        )
         session.execute(delete(AchievementCardRecord).where(AchievementCardRecord.context_id == context_id))
         session.execute(delete(WorkflowEventRecord).where(WorkflowEventRecord.workflow_id.in_(workflow_ids)))
-        session.execute(delete(ContextDisclosurePreferenceRecord).where(ContextDisclosurePreferenceRecord.context_id == context_id))
+        session.execute(
+            delete(ContextDisclosurePreferenceRecord).where(ContextDisclosurePreferenceRecord.context_id == context_id)
+        )
         session.execute(delete(UiNonceRecord).where(UiNonceRecord.context_id == context_id))
         session.execute(delete(WorkflowRecord).where(WorkflowRecord.context_id == context_id))
         session.execute(delete(ContextRecord).where(ContextRecord.id == context_id))
         remaining = (
-            int(session.execute(select(func.count()).select_from(ContextRecord).where(ContextRecord.id == context_id)).scalar_one())
-            + int(session.execute(select(func.count()).select_from(WorkflowRecord).where(WorkflowRecord.context_id == context_id)).scalar_one())
-            + int(session.execute(select(func.count()).select_from(AchievementCardRecord).where(AchievementCardRecord.context_id == context_id)).scalar_one())
+            int(
+                session.execute(
+                    select(func.count()).select_from(ContextRecord).where(ContextRecord.id == context_id)
+                ).scalar_one()
+            )
+            + int(
+                session.execute(
+                    select(func.count()).select_from(WorkflowRecord).where(WorkflowRecord.context_id == context_id)
+                ).scalar_one()
+            )
+            + int(
+                session.execute(
+                    select(func.count())
+                    .select_from(AchievementCardRecord)
+                    .where(AchievementCardRecord.context_id == context_id)
+                ).scalar_one()
+            )
         )
         if remaining:
             raise AppError("CLOSURE_INCOMPLETE", "context-owned records remain after deletion", 409)
@@ -1457,11 +1495,39 @@ def _deletion_manifest(
         "workflows": len(workflows),
         "achievement_cards": len(cards),
         "achievement_attachments": len(attachments),
-        "workflow_events": int(session.execute(select(func.count()).select_from(WorkflowEventRecord).where(WorkflowEventRecord.workflow_id.in_(workflow_ids or [""]))).scalar_one()),
-        "workflow_completion_events": int(session.execute(select(func.count()).select_from(WorkflowCompletionEventRecord).where(WorkflowCompletionEventRecord.context_id == context_id)).scalar_one()),
-        "achievement_card_events": int(session.execute(select(func.count()).select_from(AchievementCardEventRecord).where(AchievementCardEventRecord.context_id == context_id)).scalar_one()),
-        "context_disclosure_preferences": int(session.execute(select(func.count()).select_from(ContextDisclosurePreferenceRecord).where(ContextDisclosurePreferenceRecord.context_id == context_id)).scalar_one()),
-        "artifacts": int(session.execute(select(func.count()).select_from(ArtifactRecord).where(ArtifactRecord.context_id == context_id)).scalar_one()),
+        "workflow_events": int(
+            session.execute(
+                select(func.count())
+                .select_from(WorkflowEventRecord)
+                .where(WorkflowEventRecord.workflow_id.in_(workflow_ids or [""]))
+            ).scalar_one()
+        ),
+        "workflow_completion_events": int(
+            session.execute(
+                select(func.count())
+                .select_from(WorkflowCompletionEventRecord)
+                .where(WorkflowCompletionEventRecord.context_id == context_id)
+            ).scalar_one()
+        ),
+        "achievement_card_events": int(
+            session.execute(
+                select(func.count())
+                .select_from(AchievementCardEventRecord)
+                .where(AchievementCardEventRecord.context_id == context_id)
+            ).scalar_one()
+        ),
+        "context_disclosure_preferences": int(
+            session.execute(
+                select(func.count())
+                .select_from(ContextDisclosurePreferenceRecord)
+                .where(ContextDisclosurePreferenceRecord.context_id == context_id)
+            ).scalar_one()
+        ),
+        "artifacts": int(
+            session.execute(
+                select(func.count()).select_from(ArtifactRecord).where(ArtifactRecord.context_id == context_id)
+            ).scalar_one()
+        ),
     }
     return {
         "manifest_version": 1,
@@ -1707,9 +1773,122 @@ _DEFAULT_UPLOAD_SETTINGS = UploadSettings(
 )
 
 
+def _markdown_url(value: str) -> str | None:
+    candidate = value.strip()
+    if not candidate or any(character.isspace() for character in candidate):
+        return None
+    lowered = candidate.lower()
+    if lowered.startswith(("javascript:", "data:", "vbscript:")):
+        return None
+    if lowered.startswith(("http://", "https://", "mailto:", "/", "#")):
+        return candidate
+    return None
+
+
+def _inline_markdown(value: str) -> str:
+    escaped = html.escape(value, quote=False)
+    code_fragments: list[str] = []
+
+    def capture_code(match: re.Match[str]) -> str:
+        code_fragments.append(match.group(1))
+        return f"\x00MDCODE{len(code_fragments) - 1}\x00"
+
+    escaped = re.sub(r"`([^`]+)`", capture_code, escaped)
+    escaped = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", escaped)
+    escaped = re.sub(r"(?<!\*)\*([^*]+)\*(?!\*)", r"<em>\1</em>", escaped)
+
+    def replace_link(match: re.Match[str]) -> str:
+        label = match.group(1)
+        url = _markdown_url(html.unescape(match.group(2)))
+        if url is None:
+            return match.group(0)
+        safe_url = html.escape(url, quote=True)
+        return f'<a href="{safe_url}" rel="noopener noreferrer">{label}</a>'
+
+    escaped = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", replace_link, escaped)
+    return re.sub(
+        r"\x00MDCODE(\d+)\x00",
+        lambda match: f"<code>{code_fragments[int(match.group(1))]}</code>",
+        escaped,
+    )
+
+
+def _render_markdown(value: str) -> str:
+    """Render a safe subset of Markdown without allowing raw HTML."""
+
+    lines = value.replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    blocks: list[str] = []
+    index = 0
+    while index < len(lines):
+        line = lines[index]
+        stripped = line.strip()
+        if not stripped:
+            index += 1
+            continue
+        if stripped.startswith("```"):
+            code: list[str] = []
+            index += 1
+            while index < len(lines) and not lines[index].strip().startswith("```"):
+                code.append(lines[index])
+                index += 1
+            index += 1
+            blocks.append("<pre><code>" + html.escape("\n".join(code), quote=False) + "</code></pre>")
+            continue
+        heading = re.match(r"^(#{1,6})\s+(.+)$", stripped)
+        if heading:
+            level = min(len(heading.group(1)) + 1, 6)
+            blocks.append(f"<h{level}>{_inline_markdown(heading.group(2))}</h{level}>")
+            index += 1
+            continue
+        if re.fullmatch(r"(-{3,}|\*{3,})", stripped):
+            blocks.append("<hr>")
+            index += 1
+            continue
+        if stripped.startswith(">"):
+            quote: list[str] = []
+            while index < len(lines) and lines[index].strip().startswith(">"):
+                quote.append(lines[index].strip().lstrip(">").strip())
+                index += 1
+            blocks.append(f"<blockquote><p>{_inline_markdown(' '.join(quote))}</p></blockquote>")
+            continue
+        if re.match(r"^[-*+]\s+", stripped):
+            items: list[str] = []
+            while index < len(lines) and re.match(r"^[-*+]\s+", lines[index].strip()):
+                items.append(f"<li>{_inline_markdown(re.sub(r'^[-*+]\s+', '', lines[index].strip()))}</li>")
+                index += 1
+            blocks.append(f"<ul>{''.join(items)}</ul>")
+            continue
+        if re.match(r"^\d+[.)]\s+", stripped):
+            items = []
+            while index < len(lines) and re.match(r"^\d+[.)]\s+", lines[index].strip()):
+                items.append(f"<li>{_inline_markdown(re.sub(r'^\d+[.)]\s+', '', lines[index].strip()))}</li>")
+                index += 1
+            blocks.append(f"<ol>{''.join(items)}</ol>")
+            continue
+        paragraph: list[str] = []
+        while (
+            index < len(lines)
+            and lines[index].strip()
+            and not re.match(r"^(#{1,6}\s|```|>|[-*+]\s|\d+[.)]\s)", lines[index].strip())
+        ):
+            paragraph.append(lines[index].strip())
+            index += 1
+        blocks.append(f"<p>{_inline_markdown(' '.join(paragraph))}</p>")
+    return '<article class="markdown-body">' + "".join(blocks) + "</article>"
+
+
 def _preview_document(filename: str, body: str) -> str:
     return (
         '<!doctype html><html lang="zh-CN"><meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width, initial-scale=1">'
+        "<style>body{margin:0;background:#fff;color:#17212b;"
+        'font:16px/1.7 "Segoe UI","Microsoft YaHei",system-ui,sans-serif}'
+        ".markdown-body{box-sizing:border-box;max-width:960px;margin:0 auto;padding:28px;"
+        "overflow-wrap:anywhere}.markdown-body h1,.markdown-body h2,.markdown-body h3{color:#173b57;"
+        "line-height:1.25}.markdown-body pre{padding:14px;background:#f6f8fa;border-radius:8px;"
+        "overflow:auto}.markdown-body code{background:#f6f8fa;padding:2px 5px;border-radius:4px}"
+        ".markdown-body blockquote{margin:0;padding:10px 14px;border-left:4px solid #c9dfe8;"
+        "background:#f8fbfd}</style>"
         f"<title>{html.escape(filename)}</title><body>{body}</body></html>"
     )
 
@@ -1752,4 +1931,3 @@ def _unix_now() -> float:
 
 
 __all__ = ["PostgresContextRepository"]
-

@@ -35,6 +35,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--config", type=Path, default=DEFAULT_CONFIG, help="manifest source config relative to project root"
     )
     parser.add_argument("--check", action="store_true", help="validate sources and existing outputs without writing")
+    parser.add_argument(
+        "--reuse-existing",
+        action="store_true",
+        help="reuse hash-validated outputs when formal sources are not packaged",
+    )
     return parser
 
 
@@ -115,16 +120,34 @@ def _sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest().upper()
 
 
-def _read_validated_source(manual: ManualConfig) -> bytes:
+def _read_validated_source(manual: ManualConfig, output_root: Path, *, reuse_existing: bool = False) -> bytes:
     try:
         data = manual.source.read_bytes()
     except OSError as error:
-        raise TechnicalManualBuildError(f"cannot read source {manual.source.name}: {error}") from error
+        if not reuse_existing:
+            raise TechnicalManualBuildError(f"cannot read source {manual.source.name}: {error}") from error
+        return _read_existing_output(manual, output_root)
     digest = _sha256(data)
     if digest != manual.sha256:
         raise TechnicalManualBuildError(f"source hash mismatch for {manual.source.name}: {digest}")
     if not data:
         raise TechnicalManualBuildError(f"source is empty: {manual.source.name}")
+    return data
+
+
+def _read_existing_output(manual: ManualConfig, output_root: Path) -> bytes:
+    """Read a packaged runtime output and trust only the configured SHA-256."""
+
+    output_path = output_root / manual.output_filename
+    try:
+        data = output_path.read_bytes()
+    except OSError as error:
+        raise TechnicalManualBuildError(
+            f"source {manual.source.name} and reusable output {manual.output_filename} are both unavailable"
+        ) from error
+    digest = _sha256(data)
+    if digest != manual.sha256:
+        raise TechnicalManualBuildError(f"reusable output hash mismatch for {manual.output_filename}: {digest}")
     return data
 
 
@@ -164,7 +187,13 @@ def main(argv: list[str] | None = None) -> int:
         project_root = args.project_root.resolve()
         config_path = _resolve_managed(str(args.config), project_root, project_root)
         version, output_root, manuals = _load_config(config_path, project_root)
-        contents = [(manual, _read_validated_source(manual)) for manual in manuals]
+        contents = [
+            (
+                manual,
+                _read_validated_source(manual, output_root, reuse_existing=args.reuse_existing),
+            )
+            for manual in manuals
+        ]
         if args.check:
             manifest_path = output_root / "manifest.json"
             try:

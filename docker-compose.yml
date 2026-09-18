@@ -57,7 +57,7 @@ services:
       context: .
       dockerfile: Dockerfile.web
     ports:
-      - "${SCIENCERESEARCH_WEB_PORT:-8765}:8080"
+      - "${SCIENCERESEARCH_WEB_BIND_ADDRESS:-127.0.0.1}:${SCIENCERESEARCH_WEB_PORT:-8765}:8080"
     depends_on:
       api:
         condition: service_healthy

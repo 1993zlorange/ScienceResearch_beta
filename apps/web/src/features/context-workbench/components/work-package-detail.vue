@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <section class="work-package-detail" data-testid="work-package-detail" aria-live="polite">
     <header class="panel-head">
       <h2>工作包详情</h2>
@@ -41,7 +41,7 @@
       <p>{{ templateExample }}</p>
     </div>
 
-    <section class="card-create-panel" aria-label="新增成效卡">
+    <section v-if="showCreateCard" class="card-create-panel" aria-label="新增成效卡">
       <h3>新增成效卡</h3>
       <form class="card-create-form" data-testid="create-achievement-card-form" @submit.prevent="$emit('createCard')">
         <label>
@@ -69,7 +69,7 @@
       <p v-else-if="cardCreateSuccess" class="state-success" role="status">成效卡已创建。</p>
     </section>
 
-    <section class="selected-cards" aria-label="成效卡">
+    <section v-if="showCards" class="selected-cards" aria-label="成效卡">
       <h3>当前工作包成效卡（{{ workflow.achievement_cards.length }}）</h3>
       <p v-if="workflow.achievement_cards.length === 0">当前工作包暂无成效卡。</p>
       <AchievementCardItem
@@ -128,6 +128,8 @@ const props = defineProps<{
   attachmentError: string
   attachmentSuccessCardId: string
   activePreviewId: string
+  showCards?: boolean
+  showCreateCard?: boolean
 }>()
 
 defineEmits<{
@@ -150,3 +152,5 @@ const templateExample = computed(() => {
   return typeof example === 'string' && example ? example : '请结合当前课题记录具体研究示例。'
 })
 </script>
+
+

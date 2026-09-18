@@ -28,9 +28,9 @@
               type="button"
               class="workflow-toggle"
               :data-testid="`research-workflow-toggle-${entry.workflow.id}`"
-              :aria-expanded="entry.workflow.id === selectedWorkflowId ? 'true' : 'false'"
+              :aria-expanded="expandedWorkflowIds.has(entry.workflow.id) ? 'true' : 'false'"
               :aria-controls="`research-workflow-body-${entry.workflow.id}`"
-              @click="$emit('selectWorkflow', entry.workflow.id)"
+              @click="toggleWorkflow(entry.workflow.id)"
             >
               <span class="workflow-code">{{ entry.workflow.id }}</span>
               <strong>{{ entry.workflow.name }}</strong>
@@ -42,8 +42,9 @@
             <span v-for="output in entry.workflow.outputs" :key="output">{{ output }}</span>
           </p>
           <div
-            v-if="entry.workflow.id === selectedWorkflowId"
+            v-if="expandedWorkflowIds.has(entry.workflow.id)"
             :id="`research-workflow-body-${entry.workflow.id}`"
+            :data-testid="`research-workflow-body-${entry.workflow.id}`"
             class="workflow-package-list"
           >
             <p v-if="entry.items.length === 0" class="muted">当前筛选条件下没有映射工作包。</p>
@@ -80,18 +81,25 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, reactive, watch } from 'vue'
 import { workflowStatusLabel, type ResearchWorkflowViewItem } from '../context-workbench-model'
 
 const props = defineProps<{
   workflowItems: ResearchWorkflowViewItem[]
   selectedWorkflowId?: string
+  selectedWorkPackageId?: string
+  bulkCommand?: { action: 'expand' | 'collapse'; token: number }
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   selectWorkflow: [workflowId: string]
   openWorkPackage: [workPackageId: string]
+  'all-expanded-change': [allExpanded: boolean]
 }>()
+
+function emitAllExpandedChange(): void {
+  emit('all-expanded-change', expandedWorkflowIds.size > 0 && expandedWorkflowIds.size === workflowItems.value.length)
+}
 
 const stages = ['Explore', 'Execute', 'Express'] as const
 
@@ -102,4 +110,74 @@ function stageName(stage: (typeof stages)[number]): string {
 }
 
 const workflowItems = computed(() => props.workflowItems)
+const expandedWorkflowIds = reactive(new Set<string>())
+const manuallyCollapsedWorkflowIds = reactive(new Set<string>())
+
+watch(
+  () => props.selectedWorkflowId,
+  (workflowId) => {
+    if (!workflowId || manuallyCollapsedWorkflowIds.has(workflowId)) return
+    const next = new Set<string>(expandedWorkflowIds)
+    next.add(workflowId)
+    expandedWorkflowIds.clear(); for (const id of next) expandedWorkflowIds.add(id)
+    emitAllExpandedChange()
+  },
+  { immediate: true },
+)
+
+watch(
+  () => props.selectedWorkPackageId,
+  (workPackageId) => {
+    if (!workPackageId) return
+    const owner = props.workflowItems.find(entry =>
+      entry.items.some(item => item.package.id === workPackageId),
+    )
+    if (!owner) return
+    const next = new Set<string>([owner.workflow.id])
+    const manuallyCollapsed = new Set<string>(manuallyCollapsedWorkflowIds)
+    manuallyCollapsed.delete(owner.workflow.id)
+    expandedWorkflowIds.clear(); for (const id of next) expandedWorkflowIds.add(id)
+    manuallyCollapsedWorkflowIds.clear(); for (const id of manuallyCollapsed) manuallyCollapsedWorkflowIds.add(id)
+    emitAllExpandedChange()
+  },
+  { immediate: true },
+)
+
+watch(
+  () => props.bulkCommand,
+  (command) => {
+    if (!command || command.token === 0) return
+    const next = new Set<string>(expandedWorkflowIds)
+    const manuallyCollapsed = new Set<string>(manuallyCollapsedWorkflowIds)
+    if (command.action === 'expand') {
+      for (const entry of workflowItems.value) next.add(entry.workflow.id)
+      manuallyCollapsed.clear()
+    } else {
+      next.clear()
+      for (const entry of workflowItems.value) manuallyCollapsed.add(entry.workflow.id)
+    }
+    expandedWorkflowIds.clear(); for (const id of next) expandedWorkflowIds.add(id)
+    manuallyCollapsedWorkflowIds.clear(); for (const id of manuallyCollapsed) manuallyCollapsedWorkflowIds.add(id)
+    emitAllExpandedChange()
+  },
+  { immediate: true },
+)
+
+function toggleWorkflow(workflowId: string): void {
+  emit('selectWorkflow', workflowId)
+  const expanded = !expandedWorkflowIds.has(workflowId)
+  const next = new Set<string>(expandedWorkflowIds)
+  const manuallyCollapsed = new Set<string>(manuallyCollapsedWorkflowIds)
+  if (expanded) {
+    next.add(workflowId)
+    manuallyCollapsed.delete(workflowId)
+  } else {
+    next.delete(workflowId)
+    manuallyCollapsed.add(workflowId)
+  }
+  expandedWorkflowIds.clear(); for (const id of next) expandedWorkflowIds.add(id)
+  manuallyCollapsedWorkflowIds.clear(); for (const id of manuallyCollapsed) manuallyCollapsedWorkflowIds.add(id)
+  emitAllExpandedChange()
+}
 </script>
+

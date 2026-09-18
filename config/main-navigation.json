@@ -1,0 +1,46 @@
+{
+  "version": "20260917.v1",
+  "items": [
+    {
+      "id": "home",
+      "label": "总览",
+      "path": "/"
+    },
+    {
+      "id": "technical-docs",
+      "label": "技术说明",
+      "path": "/technical-docs"
+    },
+    {
+      "id": "contexts",
+      "label": "课题流程",
+      "path": "/contexts",
+      "expandable": true
+    },
+    {
+      "id": "weeks",
+      "label": "周计划",
+      "path": "/weeks"
+    },
+    {
+      "id": "reports",
+      "label": "报告与成效卡",
+      "path": "/reports"
+    },
+    {
+      "id": "skills",
+      "label": "Skills",
+      "path": "/skills"
+    },
+    {
+      "id": "governance",
+      "label": "治理",
+      "path": "/governance"
+    },
+    {
+      "id": "operations",
+      "label": "运维",
+      "path": "/operations"
+    }
+  ]
+}

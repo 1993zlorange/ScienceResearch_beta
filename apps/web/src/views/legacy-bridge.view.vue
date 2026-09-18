@@ -103,6 +103,12 @@ function download(url: URL): void {
   anchor.remove()
 }
 
+function isTargetProductRoute(url: URL): boolean {
+  const targetPath = productPathFromUrl(url)
+  const resolved = router.resolve(targetPath)
+  return resolved.name !== 'legacy-bridge'
+}
+
 function handleLegacyClick(event: MouseEvent): void {
   const target = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href]') : null
   if (
@@ -116,6 +122,14 @@ function handleLegacyClick(event: MouseEvent): void {
     target.target ||
     target.hasAttribute('download')
   ) {
+    return
+  }
+
+  const targetUrl = new URL(target.href, window.location.origin)
+  const targetPath = productPathFromUrl(targetUrl)
+  if (isTargetProductRoute(targetUrl)) {
+    event.preventDefault()
+    void router.push(targetPath)
     return
   }
 

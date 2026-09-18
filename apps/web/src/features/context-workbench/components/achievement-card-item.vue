@@ -13,14 +13,15 @@
         <span>{{ card.is_important ? '重点成效' : '成效卡' }}</span>
       </button>
     </div>
-    <p class="card-description">{{ card.description || '无描述' }}</p>
+    <p class="card-summary-meta">附件 {{ card.attachments.length }} 件</p>
     <div
-      v-show="expanded"
+      v-if="expanded"
       :id="`achievement-card-detail-${card.id}`"
       class="card-actions"
       :data-card-id="card.id"
       :data-card-expanded="expanded ? 'true' : 'false'"
     >
+      <p class="card-description">{{ card.description || '无描述' }}</p>
       <dl class="card-facts">
         <div><dt>状态</dt><dd>{{ card.status }}</dd></div>
         <div><dt>附件数量</dt><dd>{{ card.attachments.length }}</dd></div>

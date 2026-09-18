@@ -3,7 +3,7 @@
     class="work-package-directory"
     :class="{ collapsed: !directoryExpanded }"
     data-testid="work-package-directory"
-    aria-label="工作包目录"
+    aria-label="工作包卡片目录"
   >
     <header class="panel-head">
       <button
@@ -13,7 +13,7 @@
         :aria-expanded="directoryExpanded ? 'true' : 'false'"
         aria-controls="workbench-directory-body"
         @click="$emit('toggleDirectory')"
-      >工作包目录</button>
+      >工作包卡片</button>
       <span data-testid="work-package-visible-count">{{ items.length }} / {{ allCount }}</span>
     </header>
 
@@ -37,10 +37,9 @@
           <span class="badge">{{ items.filter(item => item.area.id === area.id).length }} 项</span>
         </h3>
         <div v-show="expandedAreaIds.has(area.id)" :id="`area-body-${area.id}`" class="context-wp-list">
-          <p
-            v-if="items.filter(item => item.area.id === area.id).length === 0"
-            class="empty-group"
-          >当前筛选条件下没有工作包。</p>
+          <p v-if="items.filter(item => item.area.id === area.id).length === 0" class="empty-group">
+            当前筛选条件下没有工作包。
+          </p>
           <article
             v-for="item in items.filter(item => item.area.id === area.id)"
             :key="item.package.id"
@@ -49,52 +48,40 @@
             :data-work-package="item.package.id"
             :data-status="item.status"
             :data-area="item.area.name"
+            :data-card-count="item.workflow.achievement_cards.length"
           >
             <div
               class="wp-heading"
               :data-testid="`work-package-card-${item.package.id}`"
+              :aria-expanded="expandedPackageIds.has(item.package.id) ? 'true' : 'false'"
+              :aria-controls="`package-cards-${item.package.id}`"
               role="button"
               tabindex="0"
               :aria-current="item.package.id === selectedWorkPackageId ? 'true' : undefined"
-              @click="$emit('select', item.package.id)"
-              @keydown.enter.prevent="$emit('select', item.package.id)"
-              @keydown.space.prevent="$emit('select', item.package.id)"
+              @click="$emit('togglePackage', item.package.id)"
+              @keydown.enter.prevent="$emit('togglePackage', item.package.id)"
+              @keydown.space.prevent="$emit('togglePackage', item.package.id)"
             >
-              <button
-                class="wp-toggle"
-                type="button"
-                :data-testid="`work-package-toggle-${item.package.id}`"
-                :aria-expanded="expandedPackageIds.has(item.package.id) ? 'true' : 'false'"
-                :aria-controls="`wp-directory-detail-${item.package.id}`"
-                @click.stop="$emit('select', item.package.id)"
-              >
-                <span class="wp-code">{{ item.package.id }}</span>
-                <strong>{{ item.package.name }}</strong>
-              </button>
+              <span class="wp-code">{{ item.package.id }}</span>
+              <strong>{{ item.package.name }}</strong>
               <span class="wp-status" :data-wp-status="item.status">{{ workflowStatusLabel(item.status) }}</span>
-              <button
-              v-if="expandedPackageIds.has(item.package.id) && item.package.id !== selectedWorkPackageId"
-                class="wp-collapse"
-                type="button"
-                :data-testid="`work-package-collapse-${item.package.id}`"
-                @click.stop="$emit('togglePackage', item.package.id)"
-              >收起</button>
-              <button
-                v-else
-                class="wp-select"
-                type="button"
-                :data-testid="`work-package-option-${item.package.id}`"
-                @click.stop="$emit('select', item.package.id)"
-              >查看详情</button>
+              <span class="card-count">{{ item.workflow.achievement_cards.length }} 卡</span>
+              <span v-if="item.workflow.achievement_cards.some(card => card.is_important)" class="important-mark">重点</span>
             </div>
             <p>{{ item.package.deliverable }}</p>
             <div
               v-if="expandedPackageIds.has(item.package.id)"
-              :id="`wp-directory-detail-${item.package.id}`"
-              class="wp-inline-detail"
+              :id="`package-cards-${item.package.id}`"
+              class="package-card-expansion"
             >
               <slot :item="item" />
             </div>
+            <button
+              type="button"
+              class="wp-select"
+              :data-testid="`work-package-option-${item.package.id}`"
+              @click="$emit('togglePackage', item.package.id)"
+            >展开成效卡</button>
           </article>
         </div>
       </section>
@@ -133,4 +120,3 @@ defineEmits<{
   select: [workPackageId: string]
 }>()
 </script>
-
